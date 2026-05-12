@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "deploy": "astro build && wrangler deploy",
     "astro": "astro",
     "format": "prettier --write \"src/**/*.{astro,css,js,jsx,ts,tsx}\" \"*.{json,mjs,cjs}\"",
     "format:check": "prettier --check \"src/**/*.{astro,css,js,jsx,ts,tsx}\" \"*.{json,mjs,cjs}\""
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "prettier": "^3.8.3",
-    "prettier-plugin-astro": "^0.14.1"
+    "prettier-plugin-astro": "^0.14.1",
+    "wrangler": "^4.90.1"
   }
 }
