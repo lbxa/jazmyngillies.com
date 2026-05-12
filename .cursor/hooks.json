@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "hooks": {
+    "stop": [
+      { "command": "uv run --package email_agent python -m compileall apps/email_agent/app" },
+      { "command": "cargo check --workspace" },
+      { "command": "cargo test --workspace" },
+      { "command": "bun turbo run build check-types test" },
+      { "command": "uv run --package email_agent pytest apps/email_agent/tests" },
+    ]
+  }
+}

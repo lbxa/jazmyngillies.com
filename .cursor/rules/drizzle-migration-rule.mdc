@@ -1,0 +1,13 @@
+---
+description: Guidance on handling drizzle migrations 
+globs: 
+alwaysApply: true
+---
+---
+description: General project rules that applies to all file types. Should be most general
+globs: **/*
+---
+- Use the drizzle-kit cli to generate migrations automatically
+- If a migration requires custom SQL not supported by drizzle then generate a custom migration using drizzle-kit
+- Never hand-write SQL migrations into the /migrations folder
+- Since drizzle-kit doesn't support up and down migrations, when you make a mistake, drop the old migration when you can and regenerate a new one. Avoid creating a messy migration history.

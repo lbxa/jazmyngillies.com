@@ -1,0 +1,88 @@
+# Port of enforceable command policies from `.cursor/rules/*.mdc`.
+# Note: Codex `.rules` can only enforce command execution policy.
+
+# Prefer Bun over npm/yarn/pnpm for Node package management.
+prefix_rule(
+    pattern = ["bun"],
+    decision = "allow",
+    justification = "Project standard package manager.",
+    match = [
+        "bun install",
+        "bun add zod",
+        "bun run test",
+        "bunx drizzle-kit generate",
+    ],
+    not_match = [
+        "npm install",
+        "yarn install",
+        "pnpm install",
+    ],
+)
+
+prefix_rule(
+    pattern = ["npm"],
+    decision = "forbidden",
+    justification = "Use `bun` instead of `npm` for this repository.",
+    match = [
+        "npm install",
+        "npm run test",
+        "npm exec drizzle-kit generate",
+    ],
+    not_match = [
+        "bun install",
+    ],
+)
+
+prefix_rule(
+    pattern = ["npx"],
+    decision = "forbidden",
+    justification = "Use `bunx` instead of `npx` for this repository.",
+    match = [
+        "npx drizzle-kit generate",
+        "npx tsc --noEmit",
+    ],
+    not_match = [
+        "bunx drizzle-kit generate",
+    ],
+)
+
+prefix_rule(
+    pattern = ["yarn"],
+    decision = "forbidden",
+    justification = "Use `bun` instead of `yarn` for this repository.",
+    match = [
+        "yarn install",
+        "yarn test",
+    ],
+    not_match = [
+        "bun test",
+    ],
+)
+
+prefix_rule(
+    pattern = ["pnpm"],
+    decision = "forbidden",
+    justification = "Use `bun` instead of `pnpm` for this repository.",
+    match = [
+        "pnpm install",
+        "pnpm test",
+    ],
+    not_match = [
+        "bun test",
+    ],
+)
+
+# Drizzle migration workflow: prefer explicit drizzle-kit generation flow.
+prefix_rule(
+    pattern = ["bunx", "drizzle-kit"],
+    decision = "allow",
+    justification = "Use drizzle-kit for migration generation and custom migration scaffolding.",
+    match = [
+        "bunx drizzle-kit generate",
+        "bunx drizzle-kit generate:pg",
+        "bunx drizzle-kit migrate",
+    ],
+    not_match = [
+        "bunx drizzle-kit",
+    ],
+)
