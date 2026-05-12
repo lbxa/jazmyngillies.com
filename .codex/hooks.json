@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/env bash \"$(git rev-parse --show-toplevel)/.codex/hooks/stop_checks.sh\"",
+            "timeout": 600,
+            "statusMessage": "Running stop checks"
+          }
+        ]
+      }
+    ]
+  }
+}

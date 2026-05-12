@@ -1,0 +1,35 @@
+---
+description: Avoid trivial pass-through wrapper functions.
+alwaysApply: true
+---
+
+# Avoid Trivial Wrapper Functions
+
+Do not create exported wrapper functions that only forward arguments to another function or method and return the result unchanged.
+
+Prefer one of these instead:
+
+- Export the underlying repository or object directly.
+- Re-export the original symbol directly.
+- Add a wrapper only when it adds real behavior such as validation, orchestration, transformation, retries, or access control.
+
+```ts
+// BAD
+export function listEmailAddresses(): Promise<EmailAddressRecord[]> {
+  return defaultEmailAddressRepository.listEmailAddresses();
+}
+```
+
+```ts
+// GOOD
+export const emailAddressRepository: EmailAddressRepository =
+  defaultEmailAddressRepository;
+
+// GOOD: wrapper adds real behavior
+export async function createEmailAddress(active = true): Promise<EmailAddressRecord> {
+  const emailAddressRecord =
+    await defaultEmailAddressRepository.createEmailAddress(active);
+  await provisionIdentityEmailRouting(emailAddressRecord);
+  return emailAddressRecord;
+}
+```
