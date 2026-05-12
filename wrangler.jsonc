@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "jazmyngillies-com",
+  "compatibility_date": "2026-05-12",
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
