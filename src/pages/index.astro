@@ -1,122 +1,31 @@
 ---
 import "../styles/global.css";
 
-const navLinks = [
-  { label: "Directors", href: "#directory" },
-  { label: "The Work", href: "#work" },
-  { label: "About Us", href: "#about" },
-  { label: "Contact", href: "#contact" },
-  { label: "Press", href: "#contact" },
-];
-
-const socialLinks = [
-  { label: "IMDB", href: "#" },
-  { label: "Instagram", href: "#" },
-  { label: "Vimeo", href: "#" },
-  { label: "LinkedIn", href: "#" },
-];
-
-const featuredWork = [
+const backgroundVideos = [
   {
-    client: "Astera",
-    title: "Neon Skyline",
-    director: "Jaz Gillies",
-    type: "Commercial",
-    year: "2026",
-    gradient: "linear-gradient(135deg, #7f5af0 0%, #0f172a 45%, #ef4565 100%)",
+    artist: "Tate McRae",
+    title: "It's ok I'm ok",
+    role: "Production / Creative Assist",
+    youtubeId: "Bpaf6Dm9iRc",
   },
   {
-    client: "Luxeform",
-    title: "After Hours",
-    director: "Jaz Gillies",
-    type: "Branded",
-    year: "2025",
-    gradient: "linear-gradient(125deg, #0ea5e9 0%, #111827 45%, #f97316 100%)",
+    artist: "Childish Gambino",
+    title: "Lithonia",
+    role: "Production / Creative Assist",
+    youtubeId: "yD9Xo0V-hPw",
   },
   {
-    client: "Northline",
-    title: "Run The Dawn",
-    director: "Mika Vale",
-    type: "Sports",
-    year: "2025",
-    gradient: "linear-gradient(125deg, #22c55e 0%, #0b1220 52%, #f59e0b 100%)",
+    artist: "Megan Thee Stallion",
+    title: "Roc Steady feat. Flo Milli",
+    role: "Production / Creative Assist",
+    youtubeId: "HozPPyqW0dY",
   },
   {
-    client: "Echo Room",
-    title: "Pulse Theory",
-    director: "Sia Lennox",
-    type: "Music Video",
-    year: "2024",
-    gradient: "linear-gradient(130deg, #f43f5e 0%, #0f172a 52%, #38bdf8 100%)",
+    artist: "LISA",
+    title: "ALTER EGO",
+    role: "Production / Creative Assist",
+    youtubeId: "oQQNu4OaNjI",
   },
-  {
-    client: "Belvoir",
-    title: "Objects In Motion",
-    director: "Jaz Gillies",
-    type: "Fashion",
-    year: "2024",
-    gradient: "linear-gradient(125deg, #eab308 0%, #111827 52%, #a78bfa 100%)",
-  },
-  {
-    client: "Auralia",
-    title: "Signal Lost",
-    director: "Teo Muir",
-    type: "Narrative",
-    year: "2023",
-    gradient: "linear-gradient(135deg, #f97316 0%, #020617 55%, #22d3ee 100%)",
-  },
-];
-
-const workIndex = [
-  {
-    category: "Commercial",
-    director: "Jaz Gillies",
-    title: "Astera - Neon Skyline",
-  },
-  {
-    category: "Branded",
-    director: "Jaz Gillies",
-    title: "Luxeform - After Hours",
-  },
-  {
-    category: "Sports",
-    director: "Mika Vale",
-    title: "Northline - Run The Dawn",
-  },
-  {
-    category: "Music Video",
-    director: "Sia Lennox",
-    title: "Echo Room - Pulse Theory",
-  },
-  {
-    category: "Fashion",
-    director: "Jaz Gillies",
-    title: "Belvoir - Objects In Motion",
-  },
-  {
-    category: "Narrative",
-    director: "Teo Muir",
-    title: "Auralia - Signal Lost",
-  },
-  {
-    category: "Event Film",
-    director: "Jaz Gillies",
-    title: "Vertex Live - The Opening",
-  },
-  {
-    category: "Documentary",
-    director: "Sia Lennox",
-    title: "Threadline - Makers At Midnight",
-  },
-];
-
-const capabilities = [
-  "Production",
-  "Post Production",
-  "Creative Direction",
-  "Design",
-  "Live Events",
-  "Talent Partnerships",
 ];
 ---
 
@@ -127,279 +36,360 @@ const capabilities = [
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>Jaz Gillies - Creative Producer</title>
+    <title>JAZZ GILLIES</title>
     <meta
       name="description"
-      content="Creative producer portfolio skeleton inspired by editorial production studio websites."
+      content="London Alley-inspired homepage concept for Jazz Gillies."
     />
   </head>
-  <body class="bg-[#0a0a0a] text-[#f4efe6]">
-    <input id="menu-toggle" type="checkbox" class="peer sr-only" />
-
-    <header
-      class="fixed inset-x-0 top-0 z-40 border-b border-white/10 bg-black/55 backdrop-blur-md"
+  <body class="h-dvh overflow-hidden bg-black text-[#f4efe6]">
+    <div
+      class="fixed inset-0 z-0 overflow-hidden bg-black"
+      aria-hidden="true"
+      data-video-carousel
+      data-carousel-interval="10000"
     >
-      <div
-        class="mx-auto flex max-w-[1320px] items-center justify-between px-6 py-4 md:px-10"
-      >
-        <a
-          href="#top"
-          class="text-xs font-semibold tracking-[0.35em] text-[#c4baab]"
-        >
-          JAZ GILLIES
-        </a>
-        <nav
-          class="hidden gap-6 text-[11px] uppercase tracking-[0.28em] text-[#afa594] md:flex"
-        >
-          {
-            navLinks.map((link) => (
-              <a href={link.href} class="transition hover:text-white">
-                {link.label}
-              </a>
-            ))
-          }
-        </nav>
-        <label
-          for="menu-toggle"
-          class="cursor-pointer text-[11px] uppercase tracking-[0.3em] text-[#d2c7b6] transition hover:text-white"
-        >
-          <span class="peer-checked:hidden">Menu</span>
-          <span class="hidden peer-checked:inline">Close</span>
-        </label>
-      </div>
-    </header>
-
-    <aside
-      class="pointer-events-none fixed inset-0 z-30 flex h-dvh flex-col bg-[#080808]/95 px-6 pt-28 opacity-0 transition duration-300 peer-checked:pointer-events-auto peer-checked:opacity-100 md:px-10"
-      aria-label="Directory overlay"
-    >
-      <div class="mx-auto grid w-full max-w-[1320px] gap-10 md:grid-cols-2">
-        <section>
-          <p class="mb-6 text-[11px] uppercase tracking-[0.3em] text-[#9f9483]">
-            Directory
-          </p>
-          <ul class="space-y-3 text-2xl leading-tight md:text-4xl">
-            {
-              workIndex.slice(0, 6).map((item) => (
-                <li>
-                  <a href="#work" class="transition hover:text-[#8da8ff]">
-                    {item.title}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </section>
-        <section>
-          <p class="mb-6 text-[11px] uppercase tracking-[0.3em] text-[#9f9483]">
-            Newsletter Sign Up
-          </p>
-          <p class="mb-6 max-w-lg text-sm text-[#c2b9aa]">
-            Be first to hear about new films, launch campaigns, and
-            behind-the-scenes notes.
-          </p>
-          <form class="mb-10 flex max-w-lg flex-col gap-3 sm:flex-row">
-            <input
-              type="email"
-              placeholder="Your Email"
-              class="w-full border border-white/20 bg-white/5 px-4 py-3 text-sm tracking-[0.1em] placeholder:text-[#8f8575] focus:outline-none focus:ring-2 focus:ring-[#8da8ff]"
-            />
-            <button
-              type="button"
-              class="border border-[#8da8ff] px-5 py-3 text-[11px] uppercase tracking-[0.26em] text-[#d2dcff] transition hover:bg-[#8da8ff] hover:text-black"
-            >
-              Sign Up
-            </button>
-          </form>
-          <ul
-            class="flex flex-wrap gap-4 text-[11px] uppercase tracking-[0.26em] text-[#b6ab9a]"
+      {
+        backgroundVideos.map((video) => (
+          <div
+            class:list={["video-background-frame"]}
+            data-video-id={video.youtubeId}
+            data-video-title={`${video.artist} - ${video.title}`}
+            data-video-frame
           >
-            {
-              socialLinks.map((social) => (
-                <li>
-                  <a href={social.href} class="transition hover:text-white">
-                    {social.label}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-        </section>
+            <div data-video-player />
+          </div>
+        ))
+      }
+
+      <div class="pointer-events-none absolute inset-0 bg-black/10"></div>
+      <div
+        class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.16),transparent_48%)]"
+      >
       </div>
-    </aside>
+      <div
+        class="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.24)_0%,transparent_38%,rgba(0,0,0,0.34)_100%)]"
+      >
+      </div>
+      <div
+        class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.16)_0%,transparent_44%,rgba(0,0,0,0.34)_100%)]"
+      >
+      </div>
+    </div>
 
     <main
       id="top"
-      class="mx-auto max-w-[1320px] px-6 pb-20 pt-28 md:px-10 md:pt-36"
+      class="relative z-10 mx-auto flex h-dvh w-full max-w-360 flex-col overflow-hidden px-6 pb-8 pt-6 md:px-12 md:pb-10 md:pt-8"
     >
-      <section class="mb-18 border-b border-white/10 pb-12 md:mb-24 md:pb-16">
-        <p class="mb-5 text-[11px] uppercase tracking-[0.3em] text-[#9f9483]">
-          Creative Producer Portfolio
-        </p>
-        <h1
-          class="max-w-5xl text-[clamp(3.2rem,11.5vw,10rem)] font-semibold uppercase leading-[0.9] tracking-tight text-[#f8f4ec]"
+      <header
+        class="relative z-10 flex items-start justify-center pb-6 md:pb-8"
+      >
+        <a
+          href="#top"
+          class="inline-flex flex-col items-center uppercase leading-[0.9] text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.72)]"
+          aria-label="Jazz Gillies home"
         >
-          Cinema for Brands, Artists, and Culture
-        </h1>
-        <div
-          class="mt-8 flex flex-col gap-4 text-sm text-[#c7bdaE] md:flex-row md:items-center md:justify-between"
-        >
-          <p class="max-w-2xl leading-relaxed text-[#c7bdad]">
-            London-inspired rhythm with an original portfolio voice. Built to
-            spotlight high-impact campaigns and music-led storytelling.
-          </p>
-          <a
-            href="#work"
-            class="inline-flex w-fit items-center gap-3 border border-white/25 px-5 py-3 text-[11px] uppercase tracking-[0.26em] transition hover:border-[#8da8ff] hover:text-[#c8d5ff]"
+          <span
+            class="text-[clamp(1.8rem,5.8vw,4.7rem)] font-black tracking-[-0.045em]"
           >
-            <span class="inline-block size-2 rounded-full bg-[#8da8ff]"></span>
-            Play Reel
-          </a>
-        </div>
-      </section>
-
-      <section id="work" class="mb-20 md:mb-28">
-        <div class="mb-8 flex items-center justify-between">
-          <p class="text-[11px] uppercase tracking-[0.3em] text-[#9f9483]">
-            Featured Work
-          </p>
-          <span class="text-[11px] uppercase tracking-[0.26em] text-[#7b7264]">
-            1 / {featuredWork.length}
+            JAZZ
           </span>
-        </div>
-        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {
-            featuredWork.map((item) => (
-              <article class="group border border-white/10 bg-[#0d0d0d]">
-                <a href="#work" class="block">
-                  <div
-                    class="relative h-64 overflow-hidden md:h-72"
-                    style={`background:${item.gradient}`}
-                  >
-                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_10%_20%,rgba(255,255,255,0.16)_0%,transparent_36%)]" />
-                    <div class="absolute inset-0 bg-[linear-gradient(0deg,rgba(8,8,8,0.76),transparent_55%)]" />
-                    <p class="absolute left-4 top-4 text-[10px] uppercase tracking-[0.26em] text-white/80">
-                      {item.type}
-                    </p>
-                    <p class="absolute bottom-4 right-4 text-[10px] uppercase tracking-[0.26em] text-white/80">
-                      {item.year}
-                    </p>
-                  </div>
-                  <div class="space-y-2 p-4">
-                    <p class="text-xs uppercase tracking-[0.24em] text-[#9f9483]">
-                      {item.director}
-                    </p>
-                    <h2 class="text-2xl uppercase leading-tight text-[#f6f1e8] transition group-hover:text-[#c9d6ff]">
-                      {item.client}
-                      <span class="block text-lg text-[#c8beb0]">
-                        {item.title}
-                      </span>
+          <span
+            class="text-[clamp(1.8rem,5.8vw,4.7rem)] font-black tracking-[-0.045em]"
+          >
+            GILLIES
+          </span>
+        </a>
+      </header>
+
+      <section
+        class="relative z-10 flex min-h-0 flex-1 items-end justify-end"
+      >
+        <div
+          class="w-full drop-shadow-[0_2px_20px_rgba(0,0,0,0.72)]"
+        >
+          <p
+            class="mr-[-0.4em] mb-3 text-right text-[9px] uppercase tracking-[0.4em] text-[#b9ad9c] md:mb-4"
+          >
+            Selected Work
+          </p>
+
+          <div class="space-y-1.5 md:space-y-2">
+            {
+              backgroundVideos.map((item, index) => (
+                <a
+                  href="#"
+                  data-video-trigger-index={index}
+                  class="group block py-2 transition duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] md:py-2.5"
+                >
+                  <div class="flex items-baseline justify-end gap-0">
+                    <h2 class="text-right text-[clamp(1.05rem,2.2vw,1.85rem)] font-black uppercase leading-[1.02] tracking-[-0.045em] text-[#f2eadc] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:text-white">
+                      {item.artist} - {item.title}
                     </h2>
+                    <span class="ml-0 max-w-0 overflow-hidden whitespace-nowrap text-right text-[9px] uppercase tracking-[0.2em] text-[#d8cec0] opacity-0 transition-[max-width,opacity,margin-left] duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:ml-2 group-hover:max-w-72 group-hover:opacity-100">
+                      {item.role}
+                    </span>
                   </div>
                 </a>
-              </article>
-            ))
-          }
-        </div>
-      </section>
-
-      <section
-        id="directory"
-        class="mb-20 border-y border-white/10 py-10 md:mb-24 md:py-14"
-      >
-        <p class="mb-10 text-[11px] uppercase tracking-[0.3em] text-[#9f9483]">
-          The Work Index
-        </p>
-        <div class="space-y-8">
-          {
-            workIndex.map((item) => (
-              <a href="#work" class="group block">
-                <p class="mb-2 text-xs uppercase tracking-[0.25em] text-[#8f8576]">
-                  {item.director}
-                </p>
-                <div class="flex flex-col gap-2 border-b border-white/10 pb-6 md:flex-row md:items-baseline md:justify-between">
-                  <h3 class="text-[clamp(1.5rem,4vw,2.8rem)] uppercase leading-[1] text-[#f4efe6] transition group-hover:text-[#bfd0ff]">
-                    {item.title}
-                  </h3>
-                  <span class="text-[10px] uppercase tracking-[0.24em] text-[#928676]">
-                    {item.category}
-                  </span>
-                </div>
-              </a>
-            ))
-          }
-        </div>
-      </section>
-
-      <section
-        id="about"
-        class="grid gap-10 border-b border-white/10 pb-14 md:grid-cols-[1.15fr_1fr] md:gap-16 md:pb-20"
-      >
-        <div>
-          <p class="mb-6 text-[11px] uppercase tracking-[0.3em] text-[#9f9483]">
-            About
-          </p>
-          <h2
-            class="mb-6 text-[clamp(2rem,5vw,4rem)] uppercase leading-[0.95] text-[#f8f4ed]"
-          >
-            We build bold visual worlds for modern campaigns.
-          </h2>
-          <p class="max-w-xl text-sm leading-relaxed text-[#c8beb0]">
-            This skeleton is built for a creative producer who blends music,
-            fashion, and branded narrative. Replace the placeholder entries with
-            live project pages, reel embeds, and production credits.
-          </p>
-        </div>
-        <div>
-          <p class="mb-6 text-[11px] uppercase tracking-[0.3em] text-[#9f9483]">
-            Capabilities
-          </p>
-          <ul
-            class="grid gap-3 text-lg uppercase text-[#e7dfd1] md:grid-cols-2"
-          >
-            {
-              capabilities.map((capability) => (
-                <li class="border border-white/10 bg-white/[0.02] px-4 py-3 tracking-wide">
-                  {capability}
-                </li>
               ))
             }
-          </ul>
+          </div>
         </div>
       </section>
-
-      <footer
-        id="contact"
-        class="flex flex-col gap-7 pt-10 md:flex-row md:items-end md:justify-between"
-      >
-        <div>
-          <p class="mb-2 text-[11px] uppercase tracking-[0.3em] text-[#9f9483]">
-            Contact
-          </p>
-          <a
-            href="mailto:hello@jazgillies.com"
-            class="text-2xl uppercase text-[#f4efe6] hover:text-[#c8d5ff]"
-          >
-            hello@jazgillies.com
-          </a>
-          <p class="mt-4 text-xs uppercase tracking-[0.25em] text-[#8f8576]">
-            Based in Melbourne. Working globally.
-          </p>
-        </div>
-        <ul
-          class="flex flex-wrap gap-4 text-[11px] uppercase tracking-[0.26em] text-[#b6ab9a]"
-        >
-          {
-            socialLinks.map((social) => (
-              <li>
-                <a href={social.href} class="transition hover:text-white">
-                  {social.label}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </footer>
     </main>
+
+    <script>
+      type YouTubePlayer = {
+        mute: () => void;
+        pauseVideo: () => void;
+        playVideo: () => void;
+      };
+
+      type YouTubeReadyEvent = {
+        target: YouTubePlayer;
+      };
+
+      type YouTubeStateEvent = {
+        data: number;
+      };
+
+      type YouTubePlayerOptions = {
+        videoId: string;
+        playerVars: Record<string, string | number>;
+        events: {
+          onError: () => void;
+          onReady: (event: YouTubeReadyEvent) => void;
+          onStateChange: (event: YouTubeStateEvent) => void;
+        };
+      };
+
+      type YouTubeNamespace = {
+        PlayerState: {
+          PLAYING: number;
+        };
+        Player: new (
+          element: Element,
+          options: YouTubePlayerOptions,
+        ) => YouTubePlayer;
+      };
+
+      type YouTubeWindow = Window &
+        typeof globalThis & {
+          onYouTubeIframeAPIReady?: () => void;
+          YT?: YouTubeNamespace;
+        };
+
+      type CarouselVideo = {
+        frame: HTMLElement;
+        index: number;
+        isAvailable: boolean;
+        isReady: boolean;
+        player: YouTubePlayer | null;
+        playerTarget: HTMLElement | null;
+        timeout: number | undefined;
+        videoId: string | null;
+      };
+
+      const carousel = document.querySelector("[data-video-carousel]");
+      const youtubeWindow = window as YouTubeWindow;
+
+      if (carousel) {
+        const frames = Array.from(
+          carousel.querySelectorAll<HTMLElement>("[data-video-frame]"),
+        );
+        const interval = Number(
+          carousel.getAttribute("data-carousel-interval") ?? 10000,
+        );
+        const reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+        const videos: CarouselVideo[] = frames.map((frame, index) => ({
+          frame,
+          index,
+          isAvailable: true,
+          isReady: false,
+          player: null,
+          playerTarget: frame.querySelector<HTMLElement>("[data-video-player]"),
+          timeout: undefined,
+          videoId: frame.getAttribute("data-video-id"),
+        }));
+        let activeIndex = -1;
+
+        const findNextIndex = (fromIndex: number) => {
+          for (let offset = 1; offset <= videos.length; offset += 1) {
+            const candidateIndex =
+              (fromIndex + offset + videos.length) % videos.length;
+            const candidate = videos[candidateIndex];
+
+            if (candidate?.isAvailable && candidate.isReady) {
+              return candidateIndex;
+            }
+          }
+
+          return -1;
+        };
+
+        const setActiveFrame = (index: number) => {
+          if (index < 0) {
+            return;
+          }
+
+          if (activeIndex >= 0 && activeIndex !== index) {
+            const previous = videos[activeIndex];
+            previous?.frame.classList.remove("is-active");
+            previous?.player?.pauseVideo();
+          }
+
+          activeIndex = index;
+          videos[index]?.frame.classList.add("is-active");
+        };
+
+        const requestPlayback = (index: number) => {
+          const video = videos[index];
+
+          if (!video?.isAvailable || !video.player || !video.isReady) {
+            return;
+          }
+
+          window.clearTimeout(video.timeout);
+          video.player.mute();
+          video.player.playVideo();
+          video.timeout = window.setTimeout(() => {
+            if (activeIndex !== index) {
+              video.isAvailable = false;
+              requestPlayback(findNextIndex(index));
+            }
+          }, 3500);
+        };
+
+        const handleVideoPlaying = (index: number) => {
+          const video = videos[index];
+
+          if (!video?.isAvailable) {
+            return;
+          }
+
+          window.clearTimeout(video.timeout);
+          setActiveFrame(index);
+        };
+
+        const handleVideoError = (index: number) => {
+          const video = videos[index];
+
+          if (!video) {
+            return;
+          }
+
+          window.clearTimeout(video.timeout);
+          video.isAvailable = false;
+          video.frame.classList.remove("is-active");
+
+          if (activeIndex === index || activeIndex === -1) {
+            requestPlayback(findNextIndex(index));
+          }
+        };
+
+        const playVideoAtIndex = (index: number) => {
+          if (index < 0 || index >= videos.length) {
+            return;
+          }
+
+          const targetVideo = videos[index];
+
+          if (!targetVideo?.isAvailable) {
+            return;
+          }
+
+          requestPlayback(index);
+        };
+
+        const videoTriggers = Array.from(
+          document.querySelectorAll<HTMLElement>("[data-video-trigger-index]"),
+        );
+
+        videoTriggers.forEach((trigger) => {
+          const indexAttribute = trigger.getAttribute("data-video-trigger-index");
+          const triggerIndex = Number(indexAttribute);
+
+          if (!Number.isInteger(triggerIndex)) {
+            return;
+          }
+
+          const handleTrigger = (event: Event) => {
+            if (event.type === "click") {
+              event.preventDefault();
+            }
+
+            playVideoAtIndex(triggerIndex);
+          };
+
+          trigger.addEventListener("mouseenter", handleTrigger);
+          trigger.addEventListener("focusin", handleTrigger);
+          trigger.addEventListener("click", handleTrigger);
+        });
+
+        youtubeWindow.onYouTubeIframeAPIReady = () => {
+          const youtube = youtubeWindow.YT;
+
+          if (!youtube) {
+            return;
+          }
+
+          videos.forEach((video) => {
+            if (!video.videoId || !video.playerTarget) {
+              video.isAvailable = false;
+              return;
+            }
+
+            video.player = new youtube.Player(video.playerTarget, {
+              videoId: video.videoId,
+              playerVars: {
+                autoplay: 1,
+                autohide: 1,
+                controls: 0,
+                disablekb: 1,
+                enablejsapi: 1,
+                fs: 0,
+                iv_load_policy: 3,
+                loop: 1,
+                modestbranding: 1,
+                mute: 1,
+                playlist: video.videoId,
+                playsinline: 1,
+                rel: 0,
+              },
+              events: {
+                onError: () => handleVideoError(video.index),
+                onReady: (event) => {
+                  video.isReady = true;
+                  event.target.mute();
+
+                  if (activeIndex === -1) {
+                    requestPlayback(video.index);
+                  }
+                },
+                onStateChange: (event) => {
+                  if (event.data === youtube.PlayerState.PLAYING) {
+                    handleVideoPlaying(video.index);
+                  }
+                },
+              },
+            });
+          });
+        };
+
+        if (frames.length > 1 && interval > 0 && !reduceMotion) {
+          window.setInterval(() => {
+            if (activeIndex >= 0) {
+              requestPlayback(findNextIndex(activeIndex));
+            }
+          }, interval);
+        }
+
+        const youtubeApi = document.createElement("script");
+        youtubeApi.src = "https://www.youtube.com/iframe_api";
+        document.head.append(youtubeApi);
+      }
+    </script>
   </body>
 </html>
