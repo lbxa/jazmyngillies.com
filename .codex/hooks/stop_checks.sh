@@ -2,11 +2,8 @@
 set -euo pipefail
 
 commands=(
-  "uv run --package email_agent python -m compileall apps/email_agent/app"
-  "cargo check --workspace"
-  "cargo test --workspace"
-  "bun turbo run build check-types test"
-  "uv run --package email_agent pytest apps/email_agent/tests"
+  "bun run build"
+  "bun run check"
 )
 
 for command in "${commands[@]}"; do

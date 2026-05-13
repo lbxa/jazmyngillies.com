@@ -2,12 +2,15 @@
 
 :root {
   color-scheme: dark;
+  --cursor-default: url("/cursors/cursor-default.svg");
+  --cursor-pointer: url("/cursors/cursor-pointer.svg");
 }
 
 html,
 body {
   margin: 0;
   padding: 0;
+  cursor: var(--cursor-default), auto;
 }
 
 body {
@@ -15,6 +18,50 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+a,
+button,
+label[for],
+select,
+summary,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+[role="button"],
+[role="link"] {
+  cursor: var(--cursor-pointer), pointer;
+}
+
+.video-background-frame {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  border: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 1200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.video-background-frame.is-active {
+  opacity: 1;
+}
+
+.video-background-frame iframe {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(100vw, 177.78vh);
+  width: max(100vw, 177.78dvh);
+  height: max(56.25vw, 100vh);
+  height: max(56.25vw, 100dvh);
+  border: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(1.02);
 }
 
 ::selection {
