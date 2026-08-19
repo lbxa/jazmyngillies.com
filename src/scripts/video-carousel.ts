@@ -123,13 +123,23 @@ export const initVideoCarousel = (
     activeIndex = index;
     videos[index]?.frame.classList.add("is-active");
 
-    warmVideo(findNextIndex(index));
+    // Warming the next clip is a bet that rotation will reach it. Under data
+    // saver nothing rotates, so that bet is just unrequested data.
+    if (!saveData) {
+      warmVideo(findNextIndex(index));
+    }
   };
 
   const requestPlayback = (index: number) => {
     const video = videos[index];
 
     if (!video?.isAvailable || !video.element) {
+      return;
+    }
+
+    // A hidden tab cannot play anything, so warming one here would download a
+    // clip nobody is watching. Visibility returning re-requests playback.
+    if (document.hidden) {
       return;
     }
 
@@ -142,7 +152,12 @@ export const initVideoCarousel = (
     video.timeoutId = window.setTimeout(() => {
       if (activeIndex !== index) {
         video.isAvailable = false;
-        requestPlayback(findNextIndex(index));
+
+        // Under data saver a single explicit request must not cascade into
+        // pulling down further clips.
+        if (!saveData) {
+          requestPlayback(findNextIndex(index));
+        }
       }
     }, playbackTimeoutMs);
   };
@@ -202,6 +217,13 @@ export const initVideoCarousel = (
         event.preventDefault();
       }
 
+      // Under data saver, drifting a pointer across the list must not pull down
+      // a multi-megabyte clip. A click is the user explicitly asking for one, so
+      // that still plays -- it just never starts the rotation.
+      if (saveData && event.type !== "click") {
+        return;
+      }
+
       playVideoAtIndex(triggerIndex);
     };
 
@@ -247,7 +269,12 @@ export const initVideoCarousel = (
   // retires clips that are not actually broken. Returning to the tab restores
   // them and resumes, rather than leaving a frozen frame until the next tick.
   const handleVisibilityChange = () => {
-    if (isTornDown || document.hidden) {
+    if (isTornDown) {
+      return;
+    }
+
+    if (document.hidden) {
+      stopRotation();
       return;
     }
 
@@ -269,12 +296,43 @@ export const initVideoCarousel = (
     }
 
     requestPlayback(activeIndex >= 0 ? activeIndex : findNextIndex(-1));
+    startRotation();
   };
 
   document.addEventListener("visibilitychange", handleVisibilityChange);
   listenerDisposers.push(() => {
     document.removeEventListener("visibilitychange", handleVisibilityChange);
   });
+
+  const startRotation = () => {
+    if (
+      rotationIntervalId !== undefined ||
+      frames.length < 2 ||
+      intervalMs <= 0 ||
+      reduceMotion
+    ) {
+      return;
+    }
+
+    rotationIntervalId = window.setInterval(() => {
+      if (activeIndex >= 0) {
+        requestPlayback(findNextIndex(activeIndex));
+      }
+    }, intervalMs);
+  };
+
+  // Background tabs still fire setInterval (throttled, but alive), so leaving
+  // rotation running would keep requesting clips - and each request that fails
+  // to start within playbackTimeoutMs would retire that clip and reach for the
+  // next one, downloading several videos nobody is watching.
+  const stopRotation = () => {
+    stopRotation();
+    rotationIntervalId = undefined;
+
+    for (const video of videos) {
+      clearVideoTimeout(video);
+    }
+  };
 
   const start = () => {
     if (isTornDown || hasStarted) {
@@ -283,14 +341,7 @@ export const initVideoCarousel = (
 
     hasStarted = true;
     requestPlayback(videos.findIndex((video) => video.isAvailable));
-
-    if (frames.length > 1 && intervalMs > 0 && !reduceMotion) {
-      rotationIntervalId = window.setInterval(() => {
-        if (activeIndex >= 0) {
-          requestPlayback(findNextIndex(activeIndex));
-        }
-      }, intervalMs);
-    }
+    startRotation();
   };
 
   // Every clip is preload="none", so nothing is fetched until this runs. Waiting
@@ -340,7 +391,7 @@ export const initVideoCarousel = (
       dispose();
     }
 
-    window.clearInterval(rotationIntervalId);
+    stopRotation();
 
     for (const video of videos) {
       clearVideoTimeout(video);
