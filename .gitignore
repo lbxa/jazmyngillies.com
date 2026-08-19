@@ -22,3 +22,10 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# raw video exports (source masters, not served).
+# Leading slash anchors to the repo root so public/videos/ still ships.
+/videos/
+
+# agent tooling state (contains per-session git worktrees)
+.claude/
