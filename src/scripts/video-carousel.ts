@@ -1,18 +1,10 @@
-import {
-  createYouTubePlayer,
-  isPlayingState,
-  type YouTubePlayer,
-} from "./youtube-player-adapter";
-
 type CarouselVideo = {
+  element: HTMLVideoElement | null;
   frame: HTMLElement;
   index: number;
   isAvailable: boolean;
-  isReady: boolean;
-  player: YouTubePlayer | null;
-  playerTarget: HTMLElement | null;
+  isWarmed: boolean;
   timeoutId: number | undefined;
-  videoId: string | null;
 };
 
 type VideoCarouselOptions = {
@@ -35,24 +27,38 @@ export const initVideoCarousel = (
 
   root.setAttribute(INIT_ATTRIBUTE, "true");
 
-  const frames = Array.from(root.querySelectorAll<HTMLElement>("[data-video-frame]"));
-  const intervalMs = Number(root.getAttribute("data-carousel-interval") ?? 10000);
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const frames = Array.from(
+    root.querySelectorAll<HTMLElement>("[data-video-frame]"),
+  );
+  const intervalMs = Number(
+    root.getAttribute("data-carousel-interval") ?? 10000,
+  );
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
   const playbackTimeoutMs = options.playbackTimeoutMs ?? 3500;
   const videos: CarouselVideo[] = frames.map((frame, index) => ({
+    element: frame.querySelector<HTMLVideoElement>("[data-video-player]"),
     frame,
     index,
     isAvailable: true,
-    isReady: false,
-    player: null,
-    playerTarget: frame.querySelector<HTMLElement>("[data-video-player]"),
+    isWarmed: false,
     timeoutId: undefined,
-    videoId: frame.getAttribute("data-video-id"),
   }));
   const listenerDisposers: Array<() => void> = [];
   let activeIndex = -1;
   let rotationIntervalId: number | undefined;
   let isTornDown = false;
+  let hasStarted = false;
+
+  const connection = (
+    navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }
+  ).connection;
+  const saveData =
+    connection?.saveData === true ||
+    /(^|-)2g$/.test(connection?.effectiveType ?? "");
 
   const clearVideoTimeout = (video: CarouselVideo) => {
     window.clearTimeout(video.timeoutId);
@@ -61,10 +67,10 @@ export const initVideoCarousel = (
 
   const findNextIndex = (fromIndex: number) => {
     for (let offset = 1; offset <= videos.length; offset += 1) {
-      const candidateIndex = (fromIndex + offset + videos.length) % videos.length;
-      const candidate = videos[candidateIndex];
+      const candidateIndex =
+        (fromIndex + offset + videos.length) % videos.length;
 
-      if (candidate?.isAvailable && candidate.isReady) {
+      if (videos[candidateIndex]?.isAvailable) {
         return candidateIndex;
       }
     }
@@ -72,31 +78,67 @@ export const initVideoCarousel = (
     return -1;
   };
 
+  // Clips other than the first ship with preload="none" so a cold page load
+  // fetches one video instead of all of them. Each clip is warmed only once,
+  // just before it is likely to be needed.
+  const warmVideo = (index: number) => {
+    const video = videos[index];
+
+    if (!video || !video.element) {
+      return;
+    }
+
+    // A media element can be swapped in already errored by a client-side
+    // navigation, and load() is what resets it. So an errored element must not
+    // be skipped just because it was warmed once before.
+    if (video.isWarmed && !video.element.error) {
+      return;
+    }
+
+    video.isWarmed = true;
+    video.element.preload = "auto";
+    video.element.load();
+  };
+
   const setActiveFrame = (index: number) => {
     if (index < 0) {
       return;
     }
 
-    if (activeIndex >= 0 && activeIndex !== index) {
-      const previous = videos[activeIndex];
-      previous?.frame.classList.remove("is-active");
-      previous?.player?.pauseVideo();
+    // The first frame is marked active in the HTML so its poster paints without
+    // waiting for JavaScript, which means the frame to clear is not always the
+    // one this module last activated.
+    for (const other of videos) {
+      if (
+        other.index !== index &&
+        other.frame.classList.contains("is-active")
+      ) {
+        other.frame.classList.remove("is-active");
+        // pause() keeps currentTime, so a clip resumes where it left off
+        // the next time the carousel comes back around to it.
+        other.element?.pause();
+      }
     }
 
     activeIndex = index;
     videos[index]?.frame.classList.add("is-active");
+
+    warmVideo(findNextIndex(index));
   };
 
   const requestPlayback = (index: number) => {
     const video = videos[index];
 
-    if (!video?.isAvailable || !video.player || !video.isReady) {
+    if (!video?.isAvailable || !video.element) {
       return;
     }
 
     clearVideoTimeout(video);
-    video.player.mute();
-    video.player.playVideo();
+    warmVideo(index);
+    video.element.muted = true;
+    // Autoplay can be rejected (policy, or a pause() landing mid-promise).
+    // The timeout below is what actually advances the carousel, so swallow it.
+    video.element.play().catch(() => undefined);
     video.timeoutId = window.setTimeout(() => {
       if (activeIndex !== index) {
         video.isAvailable = false;
@@ -108,11 +150,14 @@ export const initVideoCarousel = (
   const handleVideoPlaying = (index: number) => {
     const video = videos[index];
 
-    if (!video?.isAvailable) {
+    if (!video) {
       return;
     }
 
     clearVideoTimeout(video);
+    // A clip skipped for being slow is not broken. Playback proves otherwise,
+    // so let it back into the rotation.
+    video.isAvailable = true;
     setActiveFrame(index);
   };
 
@@ -134,12 +179,6 @@ export const initVideoCarousel = (
 
   const playVideoAtIndex = (index: number) => {
     if (index < 0 || index >= videos.length) {
-      return;
-    }
-
-    const targetVideo = videos[index];
-
-    if (!targetVideo?.isAvailable) {
       return;
     }
 
@@ -178,56 +217,114 @@ export const initVideoCarousel = (
   }
 
   for (const video of videos) {
-    if (!video.videoId || !video.playerTarget) {
+    if (!video.element) {
       video.isAvailable = false;
       continue;
     }
 
-    createYouTubePlayer({
-      container: video.playerTarget,
-      videoId: video.videoId,
-      onError: () => {
-        if (!isTornDown) {
-          handleVideoError(video.index);
-        }
-      },
-      onReady: (event) => {
-        if (isTornDown) {
-          return;
-        }
-
-        video.isReady = true;
-        event.target.mute();
-
-        if (activeIndex === -1) {
-          requestPlayback(video.index);
-        }
-      },
-      onStateChange: (event) => {
-        if (!isTornDown && isPlayingState(event)) {
-          handleVideoPlaying(video.index);
-        }
-      },
-    }).then((player) => {
-      if (isTornDown) {
-        player.destroy?.();
-        return;
+    const element = video.element;
+    const onPlaying = () => {
+      if (!isTornDown) {
+        handleVideoPlaying(video.index);
       }
-
-      video.player = player;
-    }).catch(() => {
+    };
+    const onError = () => {
       if (!isTornDown) {
         handleVideoError(video.index);
       }
+    };
+
+    element.addEventListener("playing", onPlaying);
+    element.addEventListener("error", onError);
+
+    listenerDisposers.push(() => {
+      element.removeEventListener("playing", onPlaying);
+      element.removeEventListener("error", onError);
     });
   }
 
-  if (frames.length > 1 && intervalMs > 0 && !reduceMotion) {
-    rotationIntervalId = window.setInterval(() => {
-      if (activeIndex >= 0) {
-        requestPlayback(findNextIndex(activeIndex));
+  // A hidden tab suspends playback, which trips the playback timeout above and
+  // retires clips that are not actually broken. Returning to the tab restores
+  // them and resumes, rather than leaving a frozen frame until the next tick.
+  const handleVisibilityChange = () => {
+    if (isTornDown || document.hidden) {
+      return;
+    }
+
+    // Opened in a background tab: nothing has been fetched yet, so this is the
+    // first point at which downloading video is worth doing. Data saver still
+    // wins here, otherwise focusing the tab would quietly undo the opt-out.
+    if (!hasStarted) {
+      if (!saveData) {
+        scheduleStart();
       }
-    }, intervalMs);
+
+      return;
+    }
+
+    for (const video of videos) {
+      if (!video.element?.error) {
+        video.isAvailable = true;
+      }
+    }
+
+    requestPlayback(activeIndex >= 0 ? activeIndex : findNextIndex(-1));
+  };
+
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  listenerDisposers.push(() => {
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+  });
+
+  const start = () => {
+    if (isTornDown || hasStarted) {
+      return;
+    }
+
+    hasStarted = true;
+    requestPlayback(videos.findIndex((video) => video.isAvailable));
+
+    if (frames.length > 1 && intervalMs > 0 && !reduceMotion) {
+      rotationIntervalId = window.setInterval(() => {
+        if (activeIndex >= 0) {
+          requestPlayback(findNextIndex(activeIndex));
+        }
+      }, intervalMs);
+    }
+  };
+
+  // Every clip is preload="none", so nothing is fetched until this runs. Waiting
+  // for load and then for idle keeps multi-megabyte video off the network while
+  // the browser is still settling the first paint. The poster on the first frame
+  // carries the visuals until then.
+  const scheduleStart = () => {
+    if (typeof window.requestIdleCallback === "function") {
+      window.requestIdleCallback(start, { timeout: 2000 });
+      return;
+    }
+
+    window.setTimeout(start, 200);
+  };
+
+  // A hidden tab cannot play anything, and starting anyway would download every
+  // clip for a page nobody is looking at. handleVisibilityChange starts it if
+  // and when the tab is actually brought forward.
+  const startIfVisible = () => {
+    if (!document.hidden) {
+      scheduleStart();
+    }
+  };
+
+  if (saveData) {
+    // Data saver on, or a connection too slow to justify the download: the
+    // poster stays and no video is ever requested.
+  } else if (document.readyState === "complete") {
+    startIfVisible();
+  } else {
+    window.addEventListener("load", startIfVisible, { once: true });
+    listenerDisposers.push(() =>
+      window.removeEventListener("load", startIfVisible),
+    );
   }
 
   const teardown = () => {
@@ -247,8 +344,7 @@ export const initVideoCarousel = (
 
     for (const video of videos) {
       clearVideoTimeout(video);
-      video.player?.pauseVideo();
-      video.player?.destroy?.();
+      video.element?.pause();
       video.frame.classList.remove("is-active");
     }
   };

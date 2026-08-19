@@ -1,151 +1,178 @@
 ---
-import "../styles/global.css";
+import BaseLayout from "../layouts/BaseLayout.astro";
 
 const backgroundVideos = [
   {
     artist: "Tate McRae",
     title: "It's ok I'm ok",
     role: "Production / Creative Assist",
-    youtubeId: "Bpaf6Dm9iRc",
+    src: "/videos/tate-mcrae-its-ok-im-ok.mp4",
+    poster: "/videos/tate-mcrae-its-ok-im-ok.webp",
   },
   {
     artist: "Childish Gambino",
     title: "Lithonia",
     role: "Production / Creative Assist",
-    youtubeId: "yD9Xo0V-hPw",
+    src: "/videos/childish-gambino-lithonia.mp4",
   },
   {
     artist: "Megan Thee Stallion",
     title: "Roc Steady feat. Flo Milli",
     role: "Production / Creative Assist",
-    youtubeId: "HozPPyqW0dY",
+    src: "/videos/megan-thee-stallion-roc-steady.mp4",
   },
   {
     artist: "LISA",
     title: "ALTER EGO",
     role: "Production / Creative Assist",
-    youtubeId: "oQQNu4OaNjI",
+    src: "/videos/lisa-alter-ego.mp4",
+  },
+  {
+    artist: "Starley",
+    title: "PEACE",
+    role: "Production / Creative Assist",
+    src: "/videos/starley-peace.mp4",
   },
 ];
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>JAZZ GILLIES</title>
-    <meta
-      name="description"
-      content="London Alley-inspired homepage concept for Jazz Gillies."
-    />
-  </head>
-  <body class="h-dvh overflow-hidden bg-black text-[#f4efe6]">
-    <div
-      class="fixed inset-0 z-0 overflow-hidden bg-black"
-      aria-hidden="true"
-      data-video-carousel
-      data-carousel-interval="10000"
-    >
-      {
-        backgroundVideos.map((video) => (
-          <div
-            class:list={["video-background-frame"]}
-            data-video-id={video.youtubeId}
-            data-video-title={`${video.artist} - ${video.title}`}
-            data-video-frame
-          >
-            <div data-video-player />
-          </div>
-        ))
-      }
+<BaseLayout
+  description="Selected music video work by Jazmyn Gillies — Tate McRae, Childish Gambino, Megan Thee Stallion, LISA and Starley."
+>
+  <link
+    slot="head"
+    rel="preload"
+    as="image"
+    href={backgroundVideos[0].poster}
+    fetchpriority="high"
+  />
 
-      <div class="pointer-events-none absolute inset-0 bg-black/10"></div>
-      <div
-        class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.16),transparent_48%)]"
+  <div
+    slot="background"
+    class="fixed inset-0 z-0 overflow-hidden bg-black"
+    aria-hidden="true"
+    data-video-carousel
+    data-carousel-interval="10000"
+  >
+    {
+      backgroundVideos.map((video, index) => (
+        <div
+          class:list={["video-background-frame", index === 0 && "is-active"]}
+          data-video-title={`${video.artist} - ${video.title}`}
+          data-video-frame
+        >
+          <video
+            data-video-player
+            src={video.src}
+            poster={video.poster}
+            preload="none"
+            muted
+            loop
+            playsinline
+          />
+        </div>
+      ))
+    }
+
+    <div class="pointer-events-none absolute inset-0 bg-black/10"></div>
+    <div
+      class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(255,255,255,0.16),transparent_48%)]"
+    >
+    </div>
+    <div
+      class="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.24)_0%,transparent_38%,rgba(0,0,0,0.34)_100%)]"
+    >
+    </div>
+    <div
+      class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.16)_0%,transparent_44%,rgba(0,0,0,0.34)_100%)]"
+    >
+    </div>
+  </div>
+
+  <section class="relative z-10 flex min-h-0 flex-1 items-end justify-end">
+    <div class="w-full drop-shadow-[0_2px_20px_rgba(0,0,0,0.72)]">
+      <p
+        class="mr-[-0.28em] mb-3 text-right text-[12px] uppercase tracking-[0.28em] text-white md:mb-4 md:text-[14px]"
       >
-      </div>
-      <div
-        class="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.24)_0%,transparent_38%,rgba(0,0,0,0.34)_100%)]"
-      >
-      </div>
-      <div
-        class="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.16)_0%,transparent_44%,rgba(0,0,0,0.34)_100%)]"
-      >
+        Selected Work
+      </p>
+
+      <div class="space-y-1.5 md:space-y-2">
+        {
+          backgroundVideos.map((item, index) => (
+            <a
+              href="#"
+              data-video-trigger-index={index}
+              class="group block py-2 transition duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] md:py-2.5"
+            >
+              {/* Type lives on the row so the revealed role matches the line
+                exactly. The role sits before the title rather than after it:
+                the list is right-aligned, so revealing on the left grows into
+                empty space and the title never moves. */}
+              <div class="flex items-baseline justify-end gap-0 whitespace-nowrap text-right text-[min(3vw,1.85rem)] uppercase leading-[1.02] tracking-[-0.045em] text-[#f2eadc] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:text-white">
+                <span class="max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,opacity] duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:opacity-100 md:group-hover:max-w-[48rem]">
+                  <span class="font-normal tracking-[-0.01em]">
+                    {item.role}
+                  </span>
+                  <span class="mx-[0.28em] font-normal text-[#f2eadc]/40">
+                    /
+                  </span>
+                </span>
+                <h2>
+                  <span class="font-normal tracking-[-0.01em]">
+                    {item.artist}
+                  </span>
+                  <span class="mx-[0.28em] font-normal text-[#f2eadc]/40">
+                    /
+                  </span>
+                  <span class="font-black">{item.title}</span>
+                </h2>
+              </div>
+            </a>
+          ))
+        }
       </div>
     </div>
+  </section>
+</BaseLayout>
 
-    <main
-      id="top"
-      class="relative z-10 mx-auto flex h-dvh w-full max-w-360 flex-col overflow-hidden px-6 pb-8 pt-6 md:px-12 md:pb-10 md:pt-8"
-    >
-      <header
-        class="relative z-10 flex items-start justify-center pb-6 md:pb-8"
-      >
-        <a
-          href="#top"
-          class="inline-flex flex-col items-center uppercase leading-[0.9] text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.72)]"
-          aria-label="Jazz Gillies home"
-        >
-          <span
-            class="text-[clamp(1.8rem,5.8vw,4.7rem)] font-black tracking-[-0.045em]"
-          >
-            JAZZ
-          </span>
-          <span
-            class="text-[clamp(1.8rem,5.8vw,4.7rem)] font-black tracking-[-0.045em]"
-          >
-            GILLIES
-          </span>
-        </a>
-      </header>
+<script>
+  import { initVideoCarousel } from "../scripts/video-carousel";
 
-      <section
-        class="relative z-10 flex min-h-0 flex-1 items-end justify-end"
-      >
-        <div
-          class="w-full drop-shadow-[0_2px_20px_rgba(0,0,0,0.72)]"
-        >
-          <p
-            class="mr-[-0.4em] mb-3 text-right text-[9px] uppercase tracking-[0.4em] text-[#b9ad9c] md:mb-4"
-          >
-            Selected Work
-          </p>
+  let teardown: (() => void) | undefined;
+  let initialisedRoot: HTMLElement | null = null;
 
-          <div class="space-y-1.5 md:space-y-2">
-            {
-              backgroundVideos.map((item, index) => (
-                <a
-                  href="#"
-                  data-video-trigger-index={index}
-                  class="group block py-2 transition duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] md:py-2.5"
-                >
-                  <div class="flex items-baseline justify-end gap-0">
-                    <h2 class="text-right text-[clamp(1.05rem,2.2vw,1.85rem)] font-black uppercase leading-[1.02] tracking-[-0.045em] text-[#f2eadc] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:text-white">
-                      {item.artist} - {item.title}
-                    </h2>
-                    <span class="ml-0 max-w-0 overflow-hidden whitespace-nowrap text-right text-[9px] uppercase tracking-[0.2em] text-[#d8cec0] opacity-0 transition-[max-width,opacity,margin-left] duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] group-hover:ml-2 group-hover:max-w-72 group-hover:opacity-100">
-                      {item.role}
-                    </span>
-                  </div>
-                </a>
-              ))
-            }
-          </div>
-        </div>
-      </section>
-    </main>
+  /**
+   * Idempotent, because this can be reached two ways and the order is not
+   * guaranteed. On a client-side navigation from a page that does not include
+   * this module, the module is fetched and executed *after* astro:page-load has
+   * already fired -- so relying on the event alone silently never initialises
+   * the carousel on the first visit. Running it at module scope too covers that,
+   * and comparing the root element keeps the redundant call free.
+   */
+  const sync = () => {
+    const carousel = document.querySelector<HTMLElement>(
+      "[data-video-carousel]",
+    );
 
-    <script>
-      import { initVideoCarousel } from "../scripts/video-carousel";
+    if (carousel === initialisedRoot) {
+      return;
+    }
 
-      const carousel = document.querySelector<HTMLElement>("[data-video-carousel]");
+    teardown?.();
+    teardown = carousel ? initVideoCarousel(carousel) : undefined;
+    initialisedRoot = carousel;
+  };
 
-      if (carousel) {
-        initVideoCarousel(carousel);
-      }
-    </script>
-  </body>
-</html>
+  const reset = () => {
+    teardown?.();
+    teardown = undefined;
+    initialisedRoot = null;
+  };
+
+  sync();
+  document.addEventListener("astro:page-load", sync);
+  // Without this a discarded carousel keeps its rotation interval, playback
+  // timeouts and listeners alive after navigating away.
+  document.addEventListener("astro:before-swap", reset);
+</script>

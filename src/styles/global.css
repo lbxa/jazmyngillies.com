@@ -50,18 +50,75 @@ input[type="reset"],
   opacity: 1;
 }
 
-.video-background-frame iframe {
+.video-background-frame video {
   display: block;
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: max(100vw, 177.78vh);
-  width: max(100vw, 177.78dvh);
-  height: max(56.25vw, 100vh);
-  height: max(56.25vw, 100dvh);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   border: 0;
+  /* Aspect-ratio agnostic, unlike the fixed 16:9 sizing the iframe needed.
+     Keeps the 3:2 Starley clip cropping correctly instead of letterboxing. */
+  object-fit: cover;
+  background-color: #000;
   pointer-events: none;
-  transform: translate(-50%, -50%) scale(1.02);
+  transform: scale(1.02);
+}
+
+/* Off-canvas navigation.
+   [data-site-shell] carries the entire site, video layer included, and slides
+   aside to reveal the drawer sitting behind it -- so the menu pushes the page
+   rather than covering it.
+
+   Transforming the shell is also what makes the push work at all: a transformed
+   ancestor becomes the containing block for `position: fixed` descendants, so
+   the fixed video layer travels with the shell instead of staying pinned to the
+   viewport. */
+:root {
+  /* Fallback only. On mobile the drawer hugs its content, and nav-drawer.ts
+     measures that and republishes this value so the shell knows how far to
+     move -- a transform needs a concrete length and cannot read another
+     element's height. */
+  --drawer-height: 16rem;
+  --drawer-width: 400px;
+  --drawer-duration: 620ms;
+  /* Symmetric ease-in-out: the panel accelerates and settles at the same rate
+     in both directions, which is what stops a push from feeling mechanical. */
+  --drawer-ease: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+[data-site-shell] {
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  background-color: #000;
+  transition: transform var(--drawer-duration) var(--drawer-ease);
+  will-change: transform;
+}
+
+[data-nav-drawer] {
+  position: fixed;
+  z-index: 0;
+  inset: 0 0 auto 0;
+  height: auto;
+}
+
+/* Mobile: the site is pushed down and the drawer occupies the strip above. */
+body[data-nav-open] [data-site-shell] {
+  transform: translate3d(0, var(--drawer-height), 0);
+}
+
+@media (min-width: 768px) {
+  [data-nav-drawer] {
+    inset: 0 0 0 auto;
+    width: var(--drawer-width);
+    height: 100%;
+  }
+
+  /* Desktop: the site slides left and the drawer occupies the strip at right. */
+  body[data-nav-open] [data-site-shell] {
+    transform: translate3d(calc(-1 * var(--drawer-width)), 0, 0);
+  }
 }
 
 ::selection {
