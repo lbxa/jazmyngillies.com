@@ -1,0 +1,141 @@
+---
+import { ClientRouter } from "astro:transitions";
+
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "JAZMYN GILLIES",
+  description = "Jazmyn Gillies — music video production and creative assist.",
+} = Astro.props;
+
+const navLinks = [
+  { label: "Home", href: "/" },
+  { label: "Portfolio", href: "/portfolio" },
+  { label: "Greenhouse", href: "/greenhouse" },
+  { label: "About", href: "/about" },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {/* Page-specific head tags, e.g. preloading a page's LCP image. */}
+    <slot name="head" />
+    <ClientRouter />
+  </head>
+  <body class="h-dvh overflow-hidden bg-black text-[#f4efe6]">
+    <nav
+      id="site-nav"
+      data-nav-drawer
+      aria-label="Main"
+      inert
+      class="flex flex-col justify-start px-6 py-8 md:px-12 md:py-8"
+    >
+      <ul class="flex flex-col items-end gap-1 text-right md:gap-2">
+        {
+          navLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="block text-[min(7vw,2.35rem)] font-black uppercase leading-[1.1] tracking-[-0.045em] text-[#f2eadc] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-white"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div data-site-shell>
+      {
+        /* Full-bleed page backdrop, behind the chrome. Only pages that have one
+          fill this slot; otherwise the shell's own black shows through. */
+      }
+      <slot name="background" />
+
+      <main
+        id="top"
+        class="relative z-10 mx-auto flex h-dvh w-full max-w-360 flex-col overflow-hidden px-6 pb-8 pt-6 md:px-12 md:pb-10 md:pt-8"
+      >
+        <header
+          class="relative z-10 flex items-start justify-center pb-6 md:pb-8"
+        >
+          <button
+            type="button"
+            data-nav-toggle
+            aria-controls="site-nav"
+            aria-expanded="false"
+            aria-label="Open menu"
+            transition:name="menu-toggle"
+            class="absolute right-0 top-0 inline-flex items-center justify-center p-1 text-white/70 transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-white"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              aria-hidden="true"
+              class="h-8 w-8 md:h-10 md:w-10"
+            >
+              <path d="M4 7h16"></path>
+              <path d="M4 12h16"></path>
+              <path d="M4 17h10"></path>
+            </svg>
+          </button>
+
+          <a
+            href="/"
+            class="relative z-20 inline-flex flex-col items-center uppercase leading-[0.9] text-white/70"
+            aria-label="Jazmyn Gillies home"
+            transition:name="wordmark"
+          >
+            <span
+              class="text-[clamp(1.8rem,5.8vw,4.7rem)] font-black tracking-[-0.045em]"
+            >
+              JAZMYN
+            </span>
+            <span
+              class="text-[clamp(1.8rem,5.8vw,4.7rem)] font-black tracking-[-0.045em]"
+            >
+              GILLIES
+            </span>
+          </a>
+        </header>
+
+        <slot />
+      </main>
+    </div>
+
+    <script>
+      import { initNavDrawer } from "../scripts/nav-drawer";
+
+      let teardown: (() => void) | undefined;
+
+      // Bundled module scripts execute once, so a client-side navigation would
+      // otherwise leave listeners bound to elements the swap has discarded.
+      // astro:page-load also fires on the initial load, so this covers both.
+      document.addEventListener("astro:page-load", () => {
+        teardown?.();
+        teardown = initNavDrawer();
+      });
+
+      document.addEventListener("astro:before-swap", () => {
+        teardown?.();
+        teardown = undefined;
+      });
+    </script>
+  </body>
+</html>
