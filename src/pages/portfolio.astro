@@ -418,7 +418,8 @@ const tabs = [
 
     const stops: Array<() => void> = [];
 
-    // Both axes: the same 700px margin works sideways for the gallery.
+    // Both scrollers: the grid runs down, the gallery runs across, and the
+    // preload margin in lazy-embeds applies to every edge to cover both.
     section
       .querySelectorAll<HTMLElement>(
         "[data-embed-scroller], [data-exhibit-track]",

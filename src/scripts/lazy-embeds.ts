@@ -59,7 +59,10 @@ export const initLazyEmbeds = (scroller: HTMLElement): Teardown => {
       // clip is applied *before* the margin, so nothing below the container's
       // bottom edge would ever be treated as approaching.
       root: scroller,
-      rootMargin: "700px 0px",
+      // One value, so it applies to every edge. Two values would expand only
+      // the top and bottom, leaving the horizontal gallery with no head start
+      // at all and its embed unloaded until the card was already on screen.
+      rootMargin: "700px",
     },
   );
 

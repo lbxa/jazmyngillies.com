@@ -57,9 +57,63 @@ export const initExhibition = (root: HTMLElement): Teardown => {
     root.style.setProperty("--exhibit-arrow-top", `${Math.round(middle)}px`);
   };
 
+  /**
+   * Plays exactly one clip: whichever card sits nearest the middle of the
+   * track.
+   *
+   * Intersection is the wrong test. A wide window shows the active card and
+   * most of its neighbour at once -- at 1440 the next card is 77% visible --
+   * so any threshold low enough to catch the active card mid-scroll also
+   * catches the one beside it, and two clips play over each other while both
+   * pull down megabytes. Distance from centre has no such ambiguity, and it
+   * lines up with where scroll-snap parks a card anyway.
+   */
+  const syncPlayback = () => {
+    const trackBox = track.getBoundingClientRect();
+
+    // A hidden tab collapses the track to nothing, and every card sits at the
+    // same phantom distance. Stop rather than pick an arbitrary winner.
+    if (trackBox.width === 0) {
+      cards.forEach((card) => card.querySelector("video")?.pause());
+      return;
+    }
+
+    const middle = trackBox.left + trackBox.width / 2;
+
+    let active = cards[0];
+    let shortest = Number.POSITIVE_INFINITY;
+
+    for (const card of cards) {
+      const box = card.getBoundingClientRect();
+      const distance = Math.abs(box.left + box.width / 2 - middle);
+
+      if (distance < shortest) {
+        shortest = distance;
+        active = card;
+      }
+    }
+
+    for (const card of cards) {
+      const video = card.querySelector("video");
+
+      if (!video) {
+        continue;
+      }
+
+      if (card === active && !stillness.matches) {
+        // Rejects when the browser declines to autoplay. Nothing to recover
+        // from -- the poster is already showing.
+        void video.play().catch(() => undefined);
+      } else {
+        video.pause();
+      }
+    }
+  };
+
   const resync = () => {
     syncArrows();
     syncArrowOffset();
+    syncPlayback();
   };
 
   // This panel starts life in a hidden tab, where the track measures 0x0 and
@@ -69,28 +123,6 @@ export const initExhibition = (root: HTMLElement): Teardown => {
   const resizeObserver = new ResizeObserver(resync);
 
   resizeObserver.observe(track);
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      for (const entry of entries) {
-        const card = entry.target as HTMLElement;
-        const video = card.querySelector("video");
-
-        if (entry.isIntersecting) {
-          // Rejects when the browser declines to autoplay. Nothing to recover
-          // from -- the poster is already showing.
-          if (!stillness.matches) {
-            void video?.play().catch(() => undefined);
-          }
-        } else {
-          video?.pause();
-        }
-      }
-    },
-    { root: track, threshold: 0.6 },
-  );
-
-  cards.forEach((card) => observer.observe(card));
 
   const step = (direction: 1 | -1) => () => {
     const gap = Number.parseFloat(getComputedStyle(track).columnGap) || 0;
@@ -106,18 +138,34 @@ export const initExhibition = (root: HTMLElement): Teardown => {
 
   next?.addEventListener("click", goNext);
   previous?.addEventListener("click", goPrevious);
-  // Only the disabled state changes while scrolling; the offset is fixed until
-  // something resizes.
-  track.addEventListener("scroll", syncArrows, { passive: true });
+  // The offset is fixed until something resizes, so scrolling only re-checks
+  // the arrows and which card is centred -- the latter throttled to a frame,
+  // since it measures every card.
+  let pending = 0;
+
+  const handleScroll = () => {
+    syncArrows();
+
+    if (pending) {
+      return;
+    }
+
+    pending = requestAnimationFrame(() => {
+      pending = 0;
+      syncPlayback();
+    });
+  };
+
+  track.addEventListener("scroll", handleScroll, { passive: true });
 
   resync();
 
   return () => {
-    observer.disconnect();
+    cancelAnimationFrame(pending);
     resizeObserver.disconnect();
     next?.removeEventListener("click", goNext);
     previous?.removeEventListener("click", goPrevious);
-    track.removeEventListener("scroll", syncArrows);
+    track.removeEventListener("scroll", handleScroll);
     cards.forEach((card) => card.querySelector("video")?.pause());
   };
 };
