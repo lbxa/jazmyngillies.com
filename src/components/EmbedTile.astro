@@ -1,0 +1,40 @@
+---
+/**
+ * The deferred shell every embed shares: a correctly-proportioned box that
+ * holds layout from first paint, and the placeholder shown until the player is
+ * mounted into it.
+ *
+ * The iframe is not rendered here. `src/scripts/lazy-embeds.ts` moves
+ * `data-embed-src` onto a real iframe once the tile nears the viewport --
+ * twenty-odd third-party players fetched up front would be several megabytes
+ * before a single frame of the page is useful.
+ */
+interface Props {
+  src: string;
+  title: string;
+  /** Tailwind aspect utility, e.g. `aspect-[9/16]`. */
+  aspect: string;
+}
+
+const { src, title, aspect } = Astro.props;
+---
+
+<div
+  data-embed
+  data-embed-src={src}
+  data-embed-title={title}
+  class:list={["relative overflow-hidden rounded-sm bg-white/[0.045]", aspect]}
+>
+  {
+    /* Sits under the player and is simply covered once it mounts, so there is
+    no swap to coordinate. */
+  }
+  <span
+    class="absolute inset-0 grid place-items-center text-[#f2eadc]/15"
+    aria-hidden="true"
+  >
+    <svg viewBox="0 0 24 24" fill="currentColor" class="h-7 w-7">
+      <path d="M9 6.5v11l9-5.5-9-5.5Z"></path>
+    </svg>
+  </span>
+</div>

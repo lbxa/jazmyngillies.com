@@ -37,7 +37,8 @@ const backgroundVideos = [
 ---
 
 <BaseLayout
-  description="Selected music video work by Jazmyn Gillies — Tate McRae, Childish Gambino, Megan Thee Stallion, LISA and Starley."
+  title="Jazmyn Gillies — Production / Creative Assist"
+  description="Music video production and creative assist. Selected work with Tate McRae, Childish Gambino, Megan Thee Stallion, LISA and Starley."
 >
   <link
     slot="head"
@@ -89,7 +90,14 @@ const backgroundVideos = [
     </div>
   </div>
 
-  <section class="relative z-10 flex min-h-0 flex-1 items-end justify-end">
+  {
+    /* This page does not scroll, so it carries the bottom margin the layout
+      used to apply to every page -- the list is bottom-aligned and would
+      otherwise sit on the edge of the screen. */
+  }
+  <section
+    class="relative z-10 flex min-h-0 flex-1 items-end justify-end pb-8 md:pb-10"
+  >
     <div class="w-full drop-shadow-[0_2px_20px_rgba(0,0,0,0.72)]">
       <p
         class="mr-[-0.28em] mb-3 text-right text-[12px] uppercase tracking-[0.28em] text-white md:mb-4 md:text-[14px]"

@@ -1,0 +1,44 @@
+---
+import { tiktokPlayerSrc } from "../lib/embeds";
+import EmbedTile from "./EmbedTile.astro";
+
+interface Props {
+  /** Numeric TikTok video id -- what the player is keyed by. */
+  id: string;
+  /** The link exactly as it appeared in the portfolio deck, short links included. */
+  href: string;
+  title: string;
+  tiktok: string;
+  instagram?: string;
+}
+
+const { id, href, title, tiktok, instagram } = Astro.props;
+---
+
+<article class="mb-2 break-inside-avoid md:mb-3">
+  <EmbedTile
+    src={tiktokPlayerSrc(id)}
+    title={`${title} — ${tiktok} views on TikTok`}
+    aspect="aspect-[9/16]"
+  />
+
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={`Open "${title}" on TikTok`}
+    class="mt-1.5 block text-[10px] uppercase leading-tight tracking-[0.16em] text-[#f2eadc]/40 transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-[#f2eadc]/80 md:mt-2 md:text-[11px]"
+  >
+    <span class="font-black text-[#f2eadc]/70">{tiktok}</span>
+    {" TikTok"}
+    {
+      instagram && (
+        <>
+          <span class="mx-[0.35em] text-[#f2eadc]/25">/</span>
+          <span class="font-black text-[#f2eadc]/70">{instagram}</span>
+          {" Instagram"}
+        </>
+      )
+    }
+  </a>
+</article>

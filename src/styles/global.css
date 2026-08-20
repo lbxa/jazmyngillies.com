@@ -81,6 +81,11 @@ input[type="reset"],
      element's height. */
   --drawer-height: 16rem;
   --drawer-width: 400px;
+  /* Warm charcoal rather than a neutral grey: the whole palette leans warm off
+     the cream, and a cool grey next to it reads as a mistake. Light enough to
+     separate from the shell's pure black without becoming a second surface
+     competing with the page. */
+  --drawer-surface: #1c1b19;
   --drawer-duration: 620ms;
   /* Symmetric ease-in-out: the panel accelerates and settles at the same rate
      in both directions, which is what stops a push from feeling mechanical. */
@@ -101,6 +106,10 @@ input[type="reset"],
   z-index: 0;
   inset: 0 0 auto 0;
   height: auto;
+  /* The drawer sits behind the shell rather than over it, so without a surface
+     of its own it was showing the body's black and the panel had no visible
+     edge -- the links appeared to float on the same plane as the page. */
+  background-color: var(--drawer-surface);
 }
 
 /* Mobile: the site is pushed down and the drawer occupies the strip above. */
@@ -135,4 +144,11 @@ body[data-nav-open] [data-site-shell] {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Tailwind's display utilities out-specify the user-agent `[hidden]` rule, so a
+   panel carrying `flex` would keep rendering while hidden. The tab widget
+   toggles the attribute, so this has to win. */
+[hidden] {
+  display: none !important;
 }

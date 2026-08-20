@@ -1,9 +1,460 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import TikTokEmbed from "../components/TikTokEmbed.astro";
+import ExhibitionCard from "../components/ExhibitionCard.astro";
+
+/**
+ * Short-form social work, taken from the portfolio deck.
+ *
+ * `id` drives the embed -- TikTok's player is keyed by the numeric video id --
+ * while `href` keeps the exact link from the deck so "open on TikTok" resolves
+ * the same way it does there, short links included.
+ *
+ * `title` is never rendered. The tile is an opaque cross-origin iframe, so
+ * without it a screen reader and the tab order get twenty identical "TikTok
+ * video" landmarks with nothing to tell them apart.
+ */
+const shortForm = [
+  {
+    id: "7304404455355632938",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7304404455355632938",
+    title: "I'm gonna make you feel this..",
+    tiktok: "25.4M",
+    instagram: "15M",
+  },
+  {
+    id: "7305526843539524907",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7305526843539524907",
+    title: "Baby, gonna feel it…",
+    tiktok: "14M",
+    instagram: "1.2M",
+  },
+  {
+    id: "7298131290514148650",
+    href: "https://vt.tiktok.com/ZSS6wfdsk/",
+    title: "Writing “High” at a Seattle soundcheck to playing it in Oakland",
+    tiktok: "2.1M",
+    instagram: "900K",
+  },
+  {
+    id: "7382809760501878047",
+    href: "https://vt.tiktok.com/ZSS6wuqG5/",
+    title: "“Georgia” — with Lana Del Rey",
+    tiktok: "33.2M",
+    instagram: "27.2M",
+  },
+  {
+    id: "7296283150408305966",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7296283150408305966",
+    title: "Feels like walking into a time capsule",
+    tiktok: "712K",
+    instagram: "827K",
+  },
+  {
+    id: "7293629308738850078",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7293629308738850078",
+    title: "Denver crowd in 50s and 60s outfits",
+    tiktok: "289K",
+    instagram: "826K",
+  },
+  {
+    id: "7291698366373809439",
+    href: "https://vt.tiktok.com/ZSS6vrTxb/",
+    title: "Things to bring to a Stephen Sanchez show: tissues",
+    tiktok: "312K",
+    instagram: "2M",
+  },
+  {
+    id: "7290954905190173982",
+    href: "https://vt.tiktok.com/ZSS6vSKBv/",
+    title: "You folks best dress up",
+    tiktok: "270K",
+    instagram: "804K",
+  },
+  {
+    id: "7297794160835169578",
+    href: "https://vt.tiktok.com/ZSS6wP1TJ/",
+    title: "We love you",
+    tiktok: "403K",
+    instagram: "706K",
+  },
+  {
+    id: "7295089645304532267",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7295089645304532267",
+    title: "What’re ya shakin’ for, little mama?",
+    tiktok: "983K",
+    instagram: "2.8M",
+  },
+  {
+    id: "7290702739854593310",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7290702739854593310",
+    title: "The best 1950s concert since the 1950s",
+    tiktok: "518K",
+    instagram: "894K",
+  },
+  {
+    id: "7301449441339362603",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7301449441339362603",
+    title: "Come over, little baby, and shake it over here with me",
+    tiktok: "875K",
+    instagram: "988K",
+  },
+  {
+    id: "7289544262096653614",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7289544262096653614",
+    title: "Bonus Jonas?",
+    tiktok: "1.5M",
+    instagram: "2M",
+  },
+  {
+    id: "7299620487821413675",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7299620487821413675",
+    title: "A day in Seattle",
+    tiktok: "549K",
+    instagram: "704K",
+  },
+  {
+    id: "7301119335668518186",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7301119335668518186",
+    title: "Half way through the tour",
+    tiktok: "596K",
+    instagram: "755K",
+  },
+  {
+    id: "7300719308005592363",
+    href: "https://vt.tiktok.com/ZSS6wLV2q/",
+    title: "Bro’s in the wrong industry",
+    tiktok: "508K",
+    instagram: "670K",
+  },
+  {
+    id: "7292931323713391903",
+    href: "https://vt.tiktok.com/ZSS6EYvq2/",
+    title: "Someone come and save me",
+    tiktok: "574.5K",
+    instagram: "787K",
+  },
+  {
+    id: "7303672615611141418",
+    href: "https://vt.tiktok.com/ZSS6E2qom/",
+    title: "Two sold out nights at the Ryman",
+    tiktok: "665K",
+    instagram: "1M",
+  },
+  {
+    id: "7369659311682817323",
+    href: "https://vt.tiktok.com/ZSS6oEoUu/",
+    title: "“Baby Blue Bathing Suit” is out now",
+    tiktok: "6.8M",
+  },
+  {
+    id: "7370130002400120095",
+    href: "https://www.tiktok.com/@stephensanchezofficial/video/7370130002400120095",
+    title: "Thank you all for loving on the new song",
+    tiktok: "1.9M",
+  },
+];
+
+/**
+ * Long-form work. The deck splits this across "Music Video Production" (London
+ * Alley) and "Long-form Journalism" (the Central News documentary, 2nd in
+ * Australia for Student Journalist of the Year); they share a section here
+ * because the split that matters to a viewer is running time, not genre.
+ *
+ * `clip` points at the local 30-second silent cut in public/videos where one
+ * has been encoded. Everything else falls back to a YouTube embed, and every
+ * card links out for the full piece either way.
+ *
+ * TODO: `description` is the thin factual credit taken from the deck. This is
+ * the part of the card the layout is built around -- worth real copy.
+ */
+const longForm = [
+  {
+    artist: "Tate McRae",
+    title: "It's ok I'm ok",
+    role: "Production / Creative Assist",
+    studio: "London Alley",
+    year: "2024",
+    description:
+      "Official video for the single, produced through London Alley.",
+    href: "https://www.youtube.com/watch?v=Bpaf6Dm9iRc",
+    clip: "/videos/tate-mcrae-its-ok-im-ok.mp4",
+    poster: "/videos/tate-mcrae-its-ok-im-ok.webp",
+  },
+  {
+    artist: "Childish Gambino",
+    title: "Lithonia",
+    role: "Production / Creative Assist",
+    studio: "London Alley",
+    year: "2024",
+    description: "Official music video, produced through London Alley.",
+    href: "https://www.youtube.com/watch?v=yD9Xo0V-hPw",
+    clip: "/videos/childish-gambino-lithonia.mp4",
+    poster: "/videos/childish-gambino-lithonia.webp",
+  },
+  {
+    artist: "Megan Thee Stallion",
+    title: "Roc Steady",
+    role: "Production / Creative Assist",
+    studio: "London Alley",
+    year: "2024",
+    description:
+      "Official video featuring Flo Milli, produced through London Alley.",
+    href: "https://www.youtube.com/watch?v=HozPPyqW0dY",
+    clip: "/videos/megan-thee-stallion-roc-steady.mp4",
+    poster: "/videos/megan-thee-stallion-roc-steady.webp",
+  },
+  {
+    artist: "LISA",
+    title: "ALTER EGO",
+    role: "Production / Creative Assist",
+    studio: "London Alley",
+    year: "2024",
+    description: "Official album teaser, produced through London Alley.",
+    href: "https://www.youtube.com/watch?v=oQQNu4OaNjI",
+    clip: "/videos/lisa-alter-ego.mp4",
+    poster: "/videos/lisa-alter-ego.webp",
+  },
+  {
+    artist: "Starley",
+    title: "PEACE",
+    role: "Production / Creative Assist",
+    studio: "London Alley",
+    year: "2024",
+    description: "Official video, produced through London Alley.",
+    href: "https://www.youtube.com/watch?v=SErB_EKGzKk",
+    clip: "/videos/starley-peace.mp4",
+    poster: "/videos/starley-peace.webp",
+  },
+  {
+    artist: "Central News",
+    title: "Hope Behind Bars",
+    role: "Produced, filmed & edited",
+    studio: "Central News",
+    year: "2021",
+    description:
+      "Long-form documentary produced, filmed and edited solo. Placed 2nd in Australia for Student Journalist of the Year.",
+    href: "https://www.youtube.com/watch?v=aNLfAarMy44",
+    youtube: "aNLfAarMy44",
+  },
+];
+
+const tabs = [
+  { id: "short", label: "Short Form" },
+  { id: "long", label: "Long Form" },
+];
 ---
 
-{
-  /* Placeholder so the Portfolio nav link resolves. The video showcase lives on
-    the home page. */
-}
-<BaseLayout title="Portfolio — JAZMYN GILLIES" />
+<BaseLayout
+  title="Portfolio — Jazmyn Gillies"
+  heading="Portfolio"
+  description="Short-form social content with tens of millions of views, plus music video production for London Alley and award-winning long-form documentary."
+  ogImage="/og/og-portfolio.jpg"
+>
+  <section class="relative z-10 flex min-h-0 flex-1 flex-col">
+    <div class="flex items-baseline justify-between gap-4 pb-4 md:pb-5">
+      <div
+        role="tablist"
+        aria-label="Portfolio sections"
+        class="flex items-baseline gap-5 md:gap-7"
+      >
+        {
+          tabs.map((tab, index) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${tab.id}`}
+              aria-controls={`panel-${tab.id}`}
+              aria-selected={index === 0 ? "true" : "false"}
+              tabindex={index === 0 ? 0 : -1}
+              class="border-b border-transparent pb-1 text-[12px] uppercase tracking-[0.28em] text-[#f2eadc]/35 transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-[#f2eadc]/70 aria-selected:border-white aria-selected:text-white md:text-[14px]"
+            >
+              {tab.label}
+            </button>
+          ))
+        }
+      </div>
+
+      {/* Tracking this wide runs into the gutter on a 375px screen. */}
+      <span
+        class="hidden text-right text-[9px] uppercase tracking-[0.14em] text-[#f2eadc]/40 sm:inline sm:text-[10px] sm:tracking-[0.22em] md:text-[12px]"
+      >
+        Filmed &amp; edited by Jazmyn
+      </span>
+    </div>
+
+    {
+      /* Each panel owns its scroll axis: the short-form grid runs down, the
+        long-form gallery runs across. That is why the scroller lives inside
+        the panels rather than wrapping both. */
+    }
+    <div
+      role="tabpanel"
+      id="panel-short"
+      aria-labelledby="tab-short"
+      class="flex min-h-0 flex-1 flex-col"
+    >
+      <div
+        data-embed-scroller
+        class="min-h-0 flex-1 overflow-y-auto overscroll-contain [mask-image:linear-gradient(to_bottom,transparent_0,black_14px,black_calc(100%-28px),transparent_100%)]"
+      >
+        <div
+          class="columns-2 gap-2 pb-10 sm:columns-3 md:gap-3 lg:columns-4 xl:columns-5"
+        >
+          {shortForm.map((clip) => <TikTokEmbed {...clip} />)}
+        </div>
+      </div>
+    </div>
+
+    <div
+      role="tabpanel"
+      id="panel-long"
+      aria-labelledby="tab-long"
+      data-exhibition
+      hidden
+      class="relative flex min-h-0 flex-1 flex-col"
+    >
+      {
+        /* snap-mandatory so a card always settles square in the frame rather
+          than stranding two half-cards, which is what makes it read as a wall
+          of plates instead of a scrolling strip. */
+      }
+      <div
+        data-exhibit-track
+        class="flex min-h-0 flex-1 snap-x snap-mandatory gap-6 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-2 [scrollbar-width:none] md:gap-10 [mask-image:linear-gradient(to_right,black_calc(100%-56px),transparent_100%)] [&::-webkit-scrollbar]:hidden"
+      >
+        {
+          longForm.map((item, index) => (
+            <ExhibitionCard {...item} index={index} total={longForm.length} />
+          ))
+        }
+      </div>
+
+      {
+        /* Overlaid on the artwork's left and right edges rather than parked in
+          a row underneath it. Down there they sat below the fold of the eye and
+          read as page furniture -- here they are where a carousel is reached
+          for, and the vertical offset is measured from the still itself so they
+          never drift onto the caption.
+
+          Disabled ends stay visible but faded: a lone arrow at the first card
+          is what tells you the row moves at all. */
+      }
+      {
+        [
+          {
+            key: "prev",
+            label: "Previous work",
+            side: "left-0 md:left-1",
+            d: "M19 12H6M12 6l-6 6 6 6",
+          },
+          {
+            key: "next",
+            label: "Next work",
+            side: "right-0 md:right-1",
+            d: "M5 12h13M12 6l6 6-6 6",
+          },
+        ].map((control) => (
+          <button
+            type="button"
+            data-exhibit-prev={control.key === "prev" ? true : undefined}
+            data-exhibit-next={control.key === "next" ? true : undefined}
+            aria-label={control.label}
+            class:list={[
+              "absolute z-20 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/55 text-white/85 backdrop-blur-sm transition duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:border-white/70 hover:bg-black/80 hover:text-white disabled:pointer-events-none disabled:opacity-25 md:h-12 md:w-12",
+              "top-[var(--exhibit-arrow-top,50%)]",
+              control.side,
+            ]}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              class="h-4 w-4 md:h-5 md:w-5"
+            >
+              <path d={control.d} />
+            </svg>
+          </button>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  import { initLazyEmbeds } from "../scripts/lazy-embeds";
+  import { initExhibition } from "../scripts/exhibition";
+  import { initTabs } from "../scripts/tabs";
+
+  let teardown: (() => void) | undefined;
+  let initialisedRoot: HTMLElement | null = null;
+
+  /**
+   * Same shape as the home page carousel: idempotent, because on a client-side
+   * navigation this module is fetched and run *after* astro:page-load has
+   * already fired, so the event alone would never initialise the first visit.
+   */
+  const sync = () => {
+    const section =
+      document
+        .querySelector<HTMLElement>("[role='tablist']")
+        ?.closest("section") ?? null;
+
+    if (section === initialisedRoot) {
+      return;
+    }
+
+    teardown?.();
+
+    if (!section) {
+      teardown = undefined;
+      initialisedRoot = null;
+      return;
+    }
+
+    const stops: Array<() => void> = [];
+
+    // Both axes: the same 700px margin works sideways for the gallery.
+    section
+      .querySelectorAll<HTMLElement>(
+        "[data-embed-scroller], [data-exhibit-track]",
+      )
+      .forEach((scroller) => stops.push(initLazyEmbeds(scroller)));
+
+    const exhibition = section.querySelector<HTMLElement>("[data-exhibition]");
+
+    if (exhibition) {
+      stops.push(initExhibition(exhibition));
+    }
+
+    const tablist = section.querySelector<HTMLElement>("[role='tablist']");
+
+    if (tablist) {
+      stops.push(
+        initTabs(tablist, (panel) => {
+          // Panels keep their own scroll position, so a tab that is returned to
+          // would otherwise open part-way through the previous visit.
+          panel?.querySelector("[data-embed-scroller]")?.scrollTo({ top: 0 });
+          panel?.querySelector("[data-exhibit-track]")?.scrollTo({ left: 0 });
+        }),
+      );
+    }
+
+    teardown = () => stops.forEach((stop) => stop());
+    initialisedRoot = section;
+  };
+
+  const reset = () => {
+    teardown?.();
+    teardown = undefined;
+    initialisedRoot = null;
+  };
+
+  sync();
+  document.addEventListener("astro:page-load", sync);
+  document.addEventListener("astro:before-swap", reset);
+</script>

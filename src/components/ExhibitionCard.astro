@@ -1,0 +1,142 @@
+---
+import EmbedTile from "./EmbedTile.astro";
+import { youtubeEmbedSrc } from "../lib/embeds";
+
+interface Props {
+  artist: string;
+  title: string;
+  role: string;
+  studio: string;
+  year: string;
+  description: string;
+  href: string;
+  /** Local 30s preview clip, where one has been encoded for this piece. */
+  clip?: string;
+  poster?: string;
+  /** Fallback for pieces with no local clip. */
+  youtube?: string;
+  index: number;
+  total: number;
+}
+
+const {
+  artist,
+  title,
+  role,
+  studio,
+  year,
+  description,
+  href,
+  clip,
+  poster,
+  youtube,
+  index,
+  total,
+} = Astro.props;
+
+const ordinal = String(index + 1).padStart(2, "0");
+---
+
+{
+  /* Centred in the track's full height rather than stacked at the top: a
+    16:9 still plus its plate is far shorter than the panel on a phone, and
+    top-aligning left the plate stranded above a screen of dead black.
+    `safe` so a short landscape viewport falls back to top-aligned instead of
+    pushing the still out of the frame. */
+}
+<article
+  data-exhibit-card
+  class="flex w-[86vw] shrink-0 snap-center flex-col [justify-content:safe_center] sm:w-[64vw] lg:w-[42rem] xl:w-[46rem]"
+>
+  <div
+    class="relative aspect-video shrink-0 overflow-hidden rounded-sm bg-white/[0.045]"
+  >
+    {
+      /* The local clips are silent 30-second cuts, so they run as an ambient
+        preview rather than pretending to be the piece -- `preload="none"`
+        keeps all five off the wire until a card is actually scrolled to, and
+        the caption links out for the real thing. */
+      clip ? (
+        <video
+          data-exhibit-video
+          src={clip}
+          poster={poster}
+          muted
+          loop
+          playsinline
+          preload="none"
+          class="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        youtube && (
+          <EmbedTile
+            src={youtubeEmbedSrc(youtube)}
+            title={`${artist} — ${title}`}
+            aspect="absolute inset-0"
+          />
+        )
+      )
+    }
+  </div>
+
+  {
+    /* The plate. This is what the card is really for, so it gets the room --
+      the still above it is the hook, not the content. */
+  }
+  <div class="mt-5 flex min-h-0 flex-col md:mt-6">
+    <p
+      class="text-[10px] uppercase tracking-[0.28em] text-[#f2eadc]/30 md:text-[11px]"
+    >
+      {ordinal}
+      <span class="mx-[0.2em]">/</span>
+      {String(total).padStart(2, "0")}
+    </p>
+
+    <h3
+      class="mt-2 text-[clamp(1.1rem,2.4vw,1.75rem)] uppercase leading-[1.05] tracking-[-0.03em] text-[#f2eadc]/90"
+    >
+      <span class="font-normal">{artist}</span>
+      <span class="mx-[0.25em] font-normal text-[#f2eadc]/25">/</span>
+      <span class="font-black">{title}</span>
+    </h3>
+
+    {
+      /* Tracked caps this long wrap mid-phrase at 375px, so the credit and the
+        studio take their own lines there and share one from sm up. */
+    }
+    <p
+      class="mt-2 flex flex-col gap-y-0.5 text-[9px] uppercase tracking-[0.16em] text-[#f2eadc]/45 sm:flex-row sm:items-baseline sm:text-[10px] sm:tracking-[0.2em] md:text-[11px]"
+    >
+      <span>{role}</span>
+      <span class="hidden text-[#f2eadc]/25 sm:mx-[0.6em] sm:inline">—</span>
+      <span>{studio}, {year}</span>
+    </p>
+
+    <p
+      class="mt-3 max-w-[34rem] text-[13px] leading-[1.65] text-[#f2eadc]/55 md:mt-4 md:text-[15px]"
+    >
+      {description}
+    </p>
+
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="mt-4 inline-flex w-fit items-center gap-2 border-b border-[#f2eadc]/25 pb-1 text-[10px] uppercase tracking-[0.22em] text-[#f2eadc]/60 transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:border-white hover:text-white md:text-[11px]"
+    >
+      Watch in full
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+        class="h-3 w-3"
+      >
+        <path d="M5 12h13"></path>
+        <path d="M12 6l6 6-6 6"></path>
+      </svg>
+    </a>
+  </div>
+</article>
