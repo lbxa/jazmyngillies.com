@@ -5,6 +5,10 @@ import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
 export default defineConfig({
+  // Required for absolute URLs. Open Graph tags are fetched by a scraper with
+  // no page context, so a relative image path is simply dropped and the link
+  // previews as a bare URL.
+  site: "https://jazmyngillies.com",
   devToolbar: {
     enabled: false,
   },

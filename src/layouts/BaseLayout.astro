@@ -6,17 +6,40 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
+  /**
+   * Masthead text for inner pages. Kept separate from `title`, which is the
+   * document title and carries the site name for search results and tabs --
+   * text far too long to set at display size.
+   */
+  heading?: string;
+  /** Link-preview card, relative to the site root. See scripts/encode-og.sh. */
+  ogImage?: string;
 }
 
 const {
   title = "JAZMYN GILLIES",
   description = "Jazmyn Gillies — music video production and creative assist.",
+  heading,
+  ogImage = "/og/og-default.jpg",
 } = Astro.props;
+
+// Absolute, because a scraper reads these tags with no page to resolve against.
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = new URL(ogImage, Astro.site);
+
+// The wordmark is the home page's masthead, not site chrome. Inner pages put
+// their own name in its place and reclaim the height it was taking.
+const isHome = Astro.url.pathname === "/";
+
+// Stamped at build rather than hardcoded, so the copyright rolls over with the
+// next deploy instead of quietly going stale.
+const year = new Date().getFullYear();
 
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Portfolio", href: "/portfolio" },
-  { label: "Greenhouse", href: "/greenhouse" },
+  // Green House lives on its own domain, so this one leaves the site.
+  { label: "Green House", href: "https://greenhouseau.com", external: true },
   { label: "About", href: "/about" },
 ];
 ---
@@ -30,6 +53,32 @@ const navLinks = [
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#000000" />
+
+    {
+      /* The site gets texted more than it gets searched, so these are the tags
+        that matter most. `summary_large_image` is what turns an iMessage or
+        WhatsApp bubble into a full-width card instead of a thumbnail strip, and
+        the explicit dimensions let a client reserve the right box before the
+        image finishes downloading. */
+    }
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Jazmyn Gillies" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Jazmyn Gillies" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content="Jazmyn Gillies" />
     {/* Page-specific head tags, e.g. preloading a page's LCP image. */}
     <slot name="head" />
     <ClientRouter />
@@ -42,12 +91,21 @@ const navLinks = [
       inert
       class="flex flex-col justify-start px-6 py-8 md:px-12 md:py-8"
     >
-      <ul class="flex flex-col items-end gap-1 text-right md:gap-2">
+      {
+        /* Ranged left inside the desktop panel so the links share one hard
+          edge. On mobile the drawer is a full-width strip instead, and the type
+          ranges right to stay under the toggle that opened it. */
+      }
+      <ul
+        class="flex flex-col items-end gap-1 text-right md:items-start md:gap-2 md:text-left"
+      >
         {
           navLinks.map((link) => (
             <li>
               <a
                 href={link.href}
+                target={link.external ? "_blank" : undefined}
+                rel={link.external ? "noopener noreferrer" : undefined}
                 class="block text-[min(7vw,2.35rem)] font-black uppercase leading-[1.1] tracking-[-0.045em] text-[#f2eadc] transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-white"
               >
                 {link.label}
@@ -65,13 +123,47 @@ const navLinks = [
       }
       <slot name="background" />
 
+      {
+        /* No bottom padding on <main>: a page's scroller has to reach the
+          viewport edge, or content stops short of it against a strip of dead
+          black and the fade marking "there is more below" floats above the
+          bottom of the screen. Pages that need breathing room down there add
+          their own -- the scrolling ones pad inside the scroller instead, so
+          the gap travels with the content rather than clipping it early. */
+      }
       <main
         id="top"
-        class="relative z-10 mx-auto flex h-dvh w-full max-w-360 flex-col overflow-hidden px-6 pb-8 pt-6 md:px-12 md:pb-10 md:pt-8"
+        class="relative z-10 mx-auto flex h-dvh w-full max-w-360 flex-col overflow-hidden px-6 pt-6 md:px-12 md:pt-8"
       >
         <header
-          class="relative z-10 flex items-start justify-center pb-6 md:pb-8"
+          class:list={[
+            "relative z-10 flex items-center pb-6 md:pb-8",
+            isHome ? "justify-center" : "justify-between",
+          ]}
         >
+          {
+            /* Ahead of the toggle in the DOM so `justify-between` puts it on
+              the left without needing to reorder visually. */
+          }
+          {
+            !isHome && heading && (
+              <h1
+                transition:name="page-title"
+                class="text-[clamp(1.5rem,4.6vw,2.35rem)] font-black uppercase leading-none tracking-[-0.045em] text-white/70"
+              >
+                {heading}
+              </h1>
+            )
+          }
+
+          {
+            /* The toggle only leaves the flow when the wordmark is there to
+              give the header its height -- on home the wordmark sets the row
+              height, so pulling the button out is what keeps it from pushing
+              the centred wordmark off-axis. Both positions land in the same
+              top-right corner, so the shared transition name still morphs
+              cleanly between them. */
+          }
           <button
             type="button"
             data-nav-toggle
@@ -79,7 +171,10 @@ const navLinks = [
             aria-expanded="false"
             aria-label="Open menu"
             transition:name="menu-toggle"
-            class="absolute right-0 top-0 inline-flex items-center justify-center p-1 text-white/70 transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-white"
+            class:list={[
+              "inline-flex items-center justify-center p-1 text-white/70 transition-colors duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)] hover:text-white",
+              isHome && "absolute right-0 top-0",
+            ]}
           >
             <svg
               viewBox="0 0 24 24"
@@ -96,26 +191,56 @@ const navLinks = [
             </svg>
           </button>
 
-          <a
-            href="/"
-            class="relative z-20 inline-flex flex-col items-center uppercase leading-[0.9] text-white/70"
-            aria-label="Jazmyn Gillies home"
-            transition:name="wordmark"
-          >
-            <span
-              class="text-[clamp(1.8rem,5.8vw,4.7rem)] font-black tracking-[-0.045em]"
-            >
-              JAZMYN
-            </span>
-            <span
-              class="text-[clamp(1.8rem,5.8vw,4.7rem)] font-black tracking-[-0.045em]"
-            >
-              GILLIES
-            </span>
-          </a>
+          {
+            isHome && (
+              <a
+                href="/"
+                class="relative z-20 inline-flex flex-col items-center uppercase leading-[0.9] text-white/70"
+                aria-label="Jazmyn Gillies home"
+                transition:name="wordmark"
+              >
+                <span class="text-[clamp(1.8rem,5.8vw,4.7rem)] font-black tracking-[-0.045em]">
+                  JAZMYN
+                </span>
+                <span class="text-[clamp(1.8rem,5.8vw,4.7rem)] font-black tracking-[-0.045em]">
+                  GILLIES
+                </span>
+              </a>
+            )
+          }
         </header>
 
         <slot />
+
+        {
+          /* Two footers, because the home page is the only one with something
+            already occupying the bottom edge. There the copyright floats clear
+            of the flow so it cannot push the bottom-right work list off its
+            corner, and it carries a scrim -- invisible over flat black, but it
+            keeps the line readable where it crosses the video. It is also
+            click-through: parked over a live list, an invisible 20px strip
+            swallowing taps would be a worse bug than the one it solves.
+
+            Every other page has an empty bottom edge, so the footer just sits
+            in the flow and centres, and the page's scroller gives up the
+            height for it. */
+        }
+        <footer
+          class:list={[
+            "text-[9px] uppercase tracking-[0.22em] text-[#f2eadc]/40 md:text-[10px]",
+            isHome
+              ? "pointer-events-none absolute bottom-6 left-6 z-20 md:bottom-8 md:left-12"
+              : "flex shrink-0 items-center justify-center pt-5 pb-8 md:pt-6 md:pb-10",
+          ]}
+        >
+          <p
+            class:list={[
+              isHome && "rounded-sm bg-black/50 px-2 py-1 backdrop-blur-[2px]",
+            ]}
+          >
+            &copy; {year} Jazmyn Gillies
+          </p>
+        </footer>
       </main>
     </div>
 

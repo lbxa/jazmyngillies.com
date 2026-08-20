@@ -1,0 +1,119 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const headshot = {
+  small: "/images/jazmyn-headshot-640.webp",
+  large: "/images/jazmyn-headshot-1280.webp",
+};
+---
+
+<BaseLayout
+  title="About — Jazmyn Gillies"
+  heading="About Jazmyn"
+  description="Creative producer, digital storyteller and founder of Green House. 8+ years across music, entertainment and culture in Australia and the United States."
+  ogImage="/og/og-about.jpg"
+>
+  {
+    /* The portrait is this page's LCP element, so it starts fetching from the
+    markup rather than waiting on the layout. `imagesrcset` has to mirror the
+    <img> exactly or the preload fetches a second, unused file. */
+  }
+  <link
+    slot="head"
+    rel="preload"
+    as="image"
+    href={headshot.large}
+    imagesrcset={`${headshot.small} 640w, ${headshot.large} 1280w`}
+    imagesizes="(min-width: 1024px) 42vw, 26rem"
+    fetchpriority="high"
+  />
+
+  <section class="relative z-10 flex min-h-0 flex-1 flex-col">
+    {
+      /* Scrolls at every breakpoint: the layout shell pins the page to the
+        viewport and never scrolls the document, and the bio outgrows the column
+        on anything shorter than a laptop. The fade is the only cue that there
+        is more below, since the shell hides the document scrollbar -- and the
+        bottom padding matches its height so a bio that fits is never dimmed by
+        it, only one that genuinely continues past the edge. */
+    }
+    {
+      /* Two columns only from lg. Between md and lg there is not enough width
+        for a portrait and a readable measure side by side, so it stacks and
+        scrolls the way the phone layout does rather than crushing the copy.
+
+        The pair is centred rather than stretched -- a 1fr text track leaves it
+        stranded against a wide band of empty space on a large screen. `safe`
+        centring, because a grid that is centred and overflowing pushes its own
+        top out of the scroll range, where it cannot be reached; `safe` falls
+        back to start-aligned the moment the content stops fitting. */
+    }
+    <div
+      class="flex min-h-0 flex-1 flex-col items-center gap-6 overflow-y-auto overscroll-contain pb-8 [mask-image:linear-gradient(to_bottom,black_calc(100%-32px),transparent_100%)] lg:grid lg:grid-cols-[auto_minmax(0,34rem)] lg:items-center lg:gap-12 lg:[align-content:safe_center] lg:[justify-content:safe_center] xl:gap-16"
+    >
+      {
+        /* Flex column on mobile rather than a one-column grid: the container
+          has a definite height, so grid rows would be sized to fit it and
+          squash the portrait instead of overflowing into the scroller.
+          `shrink-0` is the same hazard in flex terms, and is ignored once this
+          becomes a grid at md. */
+      }
+      <figure class="flex shrink-0 justify-center">
+        {
+          /* Bounded on both axes. Height alone starved the copy: an `auto`
+            track sizes to the image, so a 72vh portrait on a tall 930px-wide
+            window took 594px and left the text 192px to wrap in, overflowing
+            it by 791px. The 42vw term is what keeps the portrait in
+            proportion to the space it is actually sharing. */
+        }
+        <img
+          src={headshot.large}
+          srcset={`${headshot.small} 640w, ${headshot.large} 1280w`}
+          sizes="(min-width: 1024px) 42vw, 26rem"
+          width="1280"
+          height="1280"
+          alt="Jazmyn Gillies"
+          class="aspect-square w-full max-w-[26rem] rounded-sm object-cover lg:h-[min(60vh,42vw,40rem)] lg:w-auto lg:max-w-none"
+        />
+      </figure>
+
+      {/* "About Jazmyn" is the masthead now, so the lead opens the column. */}
+      <div class="flex w-full max-w-[34rem] flex-col">
+        <p
+          class="text-[17px] leading-[1.45] tracking-[-0.015em] text-[#f2eadc]/90 md:text-[21px]"
+        >
+          A creative producer, digital storyteller, arts advocate, and founder
+          of Green House: a culture-shifting platform and event series built for
+          the next generation of creatives.
+        </p>
+
+        <div
+          class="mt-5 space-y-4 text-[14px] leading-[1.7] text-[#f2eadc]/55 md:mt-7 md:space-y-5 md:text-[15px]"
+        >
+          <p>
+            Jazmyn Gillies is a creative, social and digital content specialist
+            with 8+ years of experience across music, entertainment and culture,
+            working across Australia and the United States. Her career has taken
+            her from journalism and media into artist teams, record labels,
+            touring artists, production companies and independent creative
+            projects, collaborating with artists, creatives and teams to tell
+            stories, build audiences and create content designed to make people
+            stop, watch and care.
+          </p>
+
+          <p>
+            Alongside her work in music and entertainment, Jazmyn is the founder
+            of Green House, an independent creative community built around one
+            simple idea: creative people need creative people. What began as a
+            passion project has grown into a thriving community of artists and
+            creatives through sold-out events, partnerships and a lively digital
+            platform, creating space for emerging talent to connect, collaborate
+            and create. Her work is fuelled by the belief that the best creative
+            work should feel authentic, make an impact and be worth paying
+            attention to.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
